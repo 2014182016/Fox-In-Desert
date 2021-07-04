@@ -72,3 +72,11 @@ Plugins/*/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
+
+# Ignore License Content
+Content/FantasyOrchestral/*
+Content/GoodSky/*
+Content/Particles_Wind_Control_System/*
+Content/PolyArtWolf/*
+Content/RoboBars/*
+Content/StylizedDesertEnv/*
