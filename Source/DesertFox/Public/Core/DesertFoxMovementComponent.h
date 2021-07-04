@@ -18,7 +18,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		FRotator RotationRate = FRotator(0.0f, 270.0f, 0.0f);
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float JumpZVelocity = 600.0f;
+		float JumpZVelocity = 360.0f;
 };
 
 /**
@@ -30,22 +30,28 @@ class DESERTFOX_API UDesertFoxMovementComponent : public UCharacterMovementCompo
 	GENERATED_BODY()
 
 public:
+	// {{ UActorComponent Interface
+	virtual void BeginPlay() override;
+	// }} UActorComponent Interface
+
 	// {{ UMovementComponent Interface
 	virtual float GetMaxSpeed() const override;
+	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
 	// }} UMovementComponent Interface
 
-	UFUNCTION(BlueprintPure)
-		bool IsRunning() const { return CurrentMovementState == EDesertFoxMovementState::Running; }
+	bool IsRunning() const { return CurrentMovementState == EDesertFoxMovementState::Running; }
+	bool IsSlowWalking() const { return CurrentMovementState == EDesertFoxMovementState::SlowWalking; }
+	bool IsJumping() const { return CurrentMovementState == EDesertFoxMovementState::Jumping; }
 
-	UFUNCTION(BlueprintPure)
-		bool IsSlowWalking() const { return CurrentMovementState == EDesertFoxMovementState::SlowWalking; }
+	EDesertFoxMovementState GetCurrentMovementState() const { return CurrentMovementState; }
 
-	UFUNCTION(BlueprintPure)
-		bool IsJumping() const { return CurrentMovementState == EDesertFoxMovementState::Jumping; }
+	bool CanRun() const;
+	bool CanSlowWalk() const;
+	bool CanJump() const;
 
 	virtual void SetMovementState(const EDesertFoxMovementState NewMovmenetState);
 	virtual void SaveMovementState(const EDesertFoxMovementState OldMovmenetState);
-	virtual void RestoreMovmenetState();
+	virtual void RestoreMovmenetState(bool bForceUpdate = false);
 
 public:
 	float DistanceToFloorWhileFalling;

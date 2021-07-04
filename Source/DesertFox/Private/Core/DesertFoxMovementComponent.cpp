@@ -3,6 +3,14 @@
 
 #include "Core/DesertFoxMovementComponent.h"
 #include "GameFramework/Character.h"
+#include "Components/CapsuleComponent.h"
+
+void UDesertFoxMovementComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	SetMovementState(EDesertFoxMovementState::Idle);
+}
 
 void UDesertFoxMovementComponent::SetMovementState(const EDesertFoxMovementState NewMovmenetState)
 {
@@ -18,10 +26,13 @@ void UDesertFoxMovementComponent::SetMovementState(const EDesertFoxMovementState
 	case EDesertFoxMovementState::Running:
 	case EDesertFoxMovementState::SlowWalking:
 	{
-		FMovemenetStateInfo MovementStateInfo = MovementStateInfoMap[NewMovmenetState];
-		bOrientRotationToMovement = MovementStateInfo.bOrientRotationToMovement;
-		RotationRate = MovementStateInfo.RotationRate;
-		JumpZVelocity = MovementStateInfo.JumpZVelocity;
+		FMovemenetStateInfo const* const MovementStateInfo = MovementStateInfoMap.Find(NewMovmenetState);
+		if (MovementStateInfo)
+		{
+			bOrientRotationToMovement = MovementStateInfo->bOrientRotationToMovement;
+			RotationRate = MovementStateInfo->RotationRate;
+			JumpZVelocity = MovementStateInfo->JumpZVelocity;
+		}
 		break;
 	}
 	case EDesertFoxMovementState::Jumping:
@@ -52,18 +63,21 @@ float UDesertFoxMovementComponent::GetMaxSpeed() const
 void UDesertFoxMovementComponent::SaveMovementState(const EDesertFoxMovementState OldMovmenetState)
 {
 	// Jumping 상태는 Save 하지 않음
-	if (OldMovmenetState == EDesertFoxMovementState::Jumping)
+	if (OldMovmenetState == EDesertFoxMovementState::Jumping || OldMovmenetState == EDesertFoxMovementState::None)
 		return;
 
 	LastMovementState = OldMovmenetState;
 	LastMaxSpeed = GetMaxSpeed();
 }
 
-void UDesertFoxMovementComponent::RestoreMovmenetState()
+void UDesertFoxMovementComponent::RestoreMovmenetState(bool bForceUpdate)
 {
-	// Jumping 상태는 Restore 하지 않음
-	if (LastMovementState == EDesertFoxMovementState::Jumping)
-		return;
+	if (!bForceUpdate)
+	{
+		// Jumping 상태에서는 Restore 하지 않음
+		if (CurrentMovementState == EDesertFoxMovementState::Jumping)
+			return;
+	}
 
 	if (IsValid(CharacterOwner))
 	{
@@ -79,4 +93,38 @@ void UDesertFoxMovementComponent::RestoreMovmenetState()
 	}
 
 	SetMovementState(LastMovementState);
+}
+
+void UDesertFoxMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
+{
+	if (IsValid(CharacterOwner) && IsFalling())
+	{
+		FHitResult HitResult(ForceInit);
+
+		FVector CapsuleHalfHeight = FVector(0.0f, 0.0f, CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		FVector StartLoc = CharacterOwner->GetActorLocation() - CapsuleHalfHeight;
+		FVector EndLoc = StartLoc + (FVector::DownVector * 10000.0f);
+
+		if (CharacterOwner->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+		{
+			DistanceToFloorWhileFalling = HitResult.Distance;
+		}
+	}
+
+	Super::PhysFalling(deltaTime, Iterations);
+}
+
+bool UDesertFoxMovementComponent::CanRun() const
+{
+	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;
+}
+
+bool UDesertFoxMovementComponent::CanSlowWalk() const
+{
+	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;
+}
+
+bool UDesertFoxMovementComponent::CanJump() const
+{
+	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;
 }

@@ -4,6 +4,7 @@
 #include "Animation/DesertFoxAnimInstance.h"
 #include "Core/DesertFoxCharacter.h"
 #include "Core/DesertFoxMovementComponent.h"
+#include "Curves/CurveFloat.h"
 
 void UDesertFoxAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
@@ -12,14 +13,20 @@ void UDesertFoxAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	ADesertFoxCharacter* DesertFoxCharacter = Cast<ADesertFoxCharacter>(TryGetPawnOwner());
 	if (IsValid(DesertFoxCharacter))
 	{
+		CurrentSpeed = DesertFoxCharacter->GetVelocity().Size();
+		CurrentSpeed2D = DesertFoxCharacter->GetVelocity().Size2D();
+
 		UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(DesertFoxCharacter->GetCharacterMovement());
 		if (DesertFoxMovement)
 		{
 			bIsInAir = DesertFoxMovement->IsFalling();
 			bIsSlowWalking = DesertFoxMovement->IsSlowWalking();
 			bIsJumping = DesertFoxMovement->IsJumping();
-		}
 
-		CurrentSpeed = DesertFoxCharacter->GetVelocity().Size();
+			if (JumpAnimRateCurve)
+			{
+				JumpAnimRate = JumpAnimRateCurve->GetFloatValue(DesertFoxMovement->DistanceToFloorWhileFalling);
+			}
+		}
 	}
 }

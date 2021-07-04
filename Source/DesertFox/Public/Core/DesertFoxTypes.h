@@ -7,6 +7,7 @@
 UENUM(BlueprintType)
 enum class EDesertFoxMovementState : uint8
 {
+	None,
 	Idle,
 	Walking,
 	Running,

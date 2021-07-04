@@ -27,7 +27,7 @@ public:
 	void SlowWalk();
 
 	void SaveMovementState();
-	void RestoreMovementState();
+	void RestoreMovementState(bool bForceUpdate = false);
 
 	void StartJump();
 	void RealJump();

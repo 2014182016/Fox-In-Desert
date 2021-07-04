@@ -44,7 +44,7 @@ void ADesertFoxCharacter::Run()
 	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
 	if (DesertFoxMovement)
 	{
-		if (DesertFoxMovement->IsWalking())
+		if (DesertFoxMovement->CanRun())
 		{
 			DesertFoxMovement->SetMovementState(EDesertFoxMovementState::Running);
 		}
@@ -56,19 +56,19 @@ void ADesertFoxCharacter::SlowWalk()
 	UDesertFoxMovementComponent* DesertFoxMovement= Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
 	if (DesertFoxMovement)
 	{
-		if (DesertFoxMovement->IsWalking())
+		if (DesertFoxMovement->CanSlowWalk())
 		{
 			DesertFoxMovement->SetMovementState(EDesertFoxMovementState::SlowWalking);
 		}
 	}
 }
 
-void ADesertFoxCharacter::RestoreMovementState()
+void ADesertFoxCharacter::RestoreMovementState(bool bForceUpdate)
 {
 	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
 	if (DesertFoxMovement)
 	{
-		DesertFoxMovement->RestoreMovmenetState();
+		DesertFoxMovement->RestoreMovmenetState(bForceUpdate);
 	}
 }
 
@@ -77,7 +77,7 @@ void ADesertFoxCharacter::StartJump()
 	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
 	if (DesertFoxMovement)
 	{
-		if (DesertFoxMovement->IsWalking())
+		if (DesertFoxMovement->CanJump())
 		{
 			DesertFoxMovement->SetMovementState(EDesertFoxMovementState::Jumping);
 
@@ -103,5 +103,5 @@ void ADesertFoxCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	RestoreMovementState();
+	RestoreMovementState(true);
 }
