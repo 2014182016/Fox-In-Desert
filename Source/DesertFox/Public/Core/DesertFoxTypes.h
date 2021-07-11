@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "DesertFoxTypes.generated.h"
 
+/* The state of character movement */
 UENUM(BlueprintType)
 enum class EDesertFoxMovementState : uint8
 {

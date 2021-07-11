@@ -36,9 +36,11 @@ public:
 	// }} Bind Action Function
 
 protected:
+	/** The speed at which the screen is rotated depends on the this variable */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		float MouseSensitivity = 45.0f;
 
+	/* If true, Pawn looks in the direction the controller sees. If not, Pawn rotates according to the inputs */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character", meta = (AllowPrivateAccess = "true"))
 		bool bUsePawnControlRotation = true;
 };

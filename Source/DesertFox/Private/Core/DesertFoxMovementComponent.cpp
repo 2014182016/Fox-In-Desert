@@ -63,7 +63,7 @@ float UDesertFoxMovementComponent::GetMaxSpeed() const
 
 void UDesertFoxMovementComponent::SaveMovementState(const EDesertFoxMovementState OldMovmenetState)
 {
-	// Jumping 상태는 Save 하지 않음
+	// Do not save while jumping
 	if (OldMovmenetState == EDesertFoxMovementState::Jumping || OldMovmenetState == EDesertFoxMovementState::None)
 		return;
 
@@ -73,7 +73,7 @@ void UDesertFoxMovementComponent::SaveMovementState(const EDesertFoxMovementStat
 
 void UDesertFoxMovementComponent::RestoreMovmenetState()
 {
-	// Jumping 상태는 Restore 하지 않음
+	// Do not restore while jumping
 	if (IsJumping())
 		return;
 
@@ -87,7 +87,7 @@ void UDesertFoxMovementComponent::RestoreMovmenetState()
 		APlayerController* PlayerController = CharacterOwner->GetController<APlayerController>();
 		if (IsValid(PlayerController))
 		{
-			// 특수 상태로 Restore 할 때, 해당 키를 누르고 있지 않다면 Idle 상태로 되돌림
+			// When returning from a special state, return to the idle state unless the corresponding key is pressed
 			if ((LastMovementState == EDesertFoxMovementState::Running) && !PlayerController->IsInputKeyDown(EKeys::LeftShift))
 				LastMovementState = EDesertFoxMovementState::Idle;
 			if ((LastMovementState == EDesertFoxMovementState::SlowWalking) && !PlayerController->IsInputKeyDown(EKeys::LeftControl))

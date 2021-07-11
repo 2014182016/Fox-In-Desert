@@ -12,6 +12,7 @@ class ADesertFoxGameMode : public AGameModeBase
 	GENERATED_BODY()
 
 public:
+	/** Save the current game data using USaveGame */
 	UFUNCTION(exec)
 		void SaveGame();
 
