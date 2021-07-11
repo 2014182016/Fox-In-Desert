@@ -63,12 +63,12 @@ void ADesertFoxCharacter::SlowWalk()
 	}
 }
 
-void ADesertFoxCharacter::RestoreMovementState(bool bForceUpdate)
+void ADesertFoxCharacter::RestoreMovementState()
 {
 	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
 	if (DesertFoxMovement)
 	{
-		DesertFoxMovement->RestoreMovmenetState(bForceUpdate);
+		DesertFoxMovement->RestoreMovmenetState();
 	}
 }
 
@@ -81,10 +81,10 @@ void ADesertFoxCharacter::StartJump()
 		{
 			DesertFoxMovement->SetMovementState(EDesertFoxMovementState::Jumping);
 
-			if (LatentJumpTime > 0.0f)
+			if (CanReadyToJump())
 			{
 				FTimerHandle TimerHandle;
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ADesertFoxCharacter::RealJump, LatentJumpTime, false);
+				GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ADesertFoxCharacter::RealJump, ReadyToJumpTime.GetValue(), false);
 			}
 			else
 			{
@@ -99,9 +99,20 @@ void ADesertFoxCharacter::RealJump()
 	Jump();
 }
 
+bool ADesertFoxCharacter::CanReadyToJump() const
+{
+	return ReadyToJumpTime.IsSet();
+}
+
 void ADesertFoxCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	RestoreMovementState(true);
+
+	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
+	if (DesertFoxMovement)
+	{
+		DesertFoxMovement->SetMovementState(EDesertFoxMovementState::Idle, false);
+		DesertFoxMovement->RestoreMovmenetState();
+	}
 }

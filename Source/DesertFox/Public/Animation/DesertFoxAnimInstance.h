@@ -16,6 +16,7 @@ class DESERTFOX_API UDesertFoxAnimInstance : public UAnimInstance
 	
 public:
 	// {{ UAnimInstance Interface
+	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 	// }} UAnimInstance Interface
 
@@ -40,5 +41,11 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
 		class UCurveFloat* JumpAnimRateCurve;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
+		float JumpAnimStartPosition = 0.0f;
+
+private:
+	float DefaultJumpAnimStartPosition;
 
 };

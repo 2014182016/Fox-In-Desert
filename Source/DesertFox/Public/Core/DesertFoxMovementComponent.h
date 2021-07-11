@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DesertFoxTypes.h"
+#include "OptionalWrapper.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "DesertFoxMovementComponent.generated.h"
 
@@ -13,12 +14,15 @@ struct FMovemenetStateInfo
 	GENERATED_USTRUCT_BODY()
 
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		bool bOrientRotationToMovement = true;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		FRotator RotationRate = FRotator(0.0f, 270.0f, 0.0f);
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		float JumpZVelocity = 360.0f;
+	void Set(class UDesertFoxMovementComponent* const OtherMovement) const;
+
+public:
+	UPROPERTY(EditDefaultsOnly)
+		FOptionalBool bOrientRotationToMovement = true;
+	UPROPERTY(EditDefaultsOnly)
+		FOptionalRotator RotationRate = FRotator(0.0f, 270.0f, 0.0f);
+	UPROPERTY(EditDefaultsOnly)
+		FOptionalFloat JumpZVelocity = 360.0f;
 };
 
 /**
@@ -49,9 +53,9 @@ public:
 	bool CanSlowWalk() const;
 	bool CanJump() const;
 
-	virtual void SetMovementState(const EDesertFoxMovementState NewMovmenetState);
+	virtual void SetMovementState(const EDesertFoxMovementState NewMovmenetState, bool bSaveMovement = true);
 	virtual void SaveMovementState(const EDesertFoxMovementState OldMovmenetState);
-	virtual void RestoreMovmenetState(bool bForceUpdate = false);
+	virtual void RestoreMovmenetState();
 
 public:
 	float DistanceToFloorWhileFalling;

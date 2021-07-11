@@ -5,6 +5,19 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 
+void FMovemenetStateInfo::Set(class UDesertFoxMovementComponent* const OtherMovement) const
+{
+	if (OtherMovement)
+	{
+		if (bOrientRotationToMovement.IsSet())
+			OtherMovement->bOrientRotationToMovement = bOrientRotationToMovement.GetValue();
+		if (RotationRate.IsSet())
+			OtherMovement->RotationRate = RotationRate.GetValue();
+		if (JumpZVelocity.IsSet())
+			OtherMovement->JumpZVelocity = JumpZVelocity.GetValue();
+	}
+}
+
 void UDesertFoxMovementComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -12,32 +25,20 @@ void UDesertFoxMovementComponent::BeginPlay()
 	SetMovementState(EDesertFoxMovementState::Idle);
 }
 
-void UDesertFoxMovementComponent::SetMovementState(const EDesertFoxMovementState NewMovmenetState)
+void UDesertFoxMovementComponent::SetMovementState(const EDesertFoxMovementState NewMovmenetState, bool bSaveMovement)
 {
 	if (CurrentMovementState == NewMovmenetState)
 		return;
 
-	SaveMovementState(CurrentMovementState);
-
-	switch (NewMovmenetState)
+	if (bSaveMovement)
 	{
-	case EDesertFoxMovementState::Idle:
-	case EDesertFoxMovementState::Walking:
-	case EDesertFoxMovementState::Running:
-	case EDesertFoxMovementState::SlowWalking:
-	{
-		FMovemenetStateInfo const* const MovementStateInfo = MovementStateInfoMap.Find(NewMovmenetState);
-		if (MovementStateInfo)
-		{
-			bOrientRotationToMovement = MovementStateInfo->bOrientRotationToMovement;
-			RotationRate = MovementStateInfo->RotationRate;
-			JumpZVelocity = MovementStateInfo->JumpZVelocity;
-		}
-		break;
+		SaveMovementState(CurrentMovementState);
 	}
-	case EDesertFoxMovementState::Jumping:
-		bOrientRotationToMovement = false;
-		break;
+	
+	const FMovemenetStateInfo* const MovementStateInfo = MovementStateInfoMap.Find(NewMovmenetState);
+	if (MovementStateInfo)
+	{
+		MovementStateInfo->Set(this);
 	}
 
 	CurrentMovementState = NewMovmenetState;
@@ -70,13 +71,15 @@ void UDesertFoxMovementComponent::SaveMovementState(const EDesertFoxMovementStat
 	LastMaxSpeed = GetMaxSpeed();
 }
 
-void UDesertFoxMovementComponent::RestoreMovmenetState(bool bForceUpdate)
+void UDesertFoxMovementComponent::RestoreMovmenetState()
 {
-	if (!bForceUpdate)
+	// Jumping 상태는 Restore 하지 않음
+	if (IsJumping())
+		return;
+
+	if (LastMovementState == EDesertFoxMovementState::None)
 	{
-		// Jumping 상태에서는 Restore 하지 않음
-		if (CurrentMovementState == EDesertFoxMovementState::Jumping)
-			return;
+		LastMovementState = EDesertFoxMovementState::Idle;
 	}
 
 	if (IsValid(CharacterOwner))

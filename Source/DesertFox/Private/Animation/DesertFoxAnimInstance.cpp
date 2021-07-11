@@ -6,6 +6,13 @@
 #include "Core/DesertFoxMovementComponent.h"
 #include "Curves/CurveFloat.h"
 
+void UDesertFoxAnimInstance::NativeInitializeAnimation()
+{
+	Super::NativeInitializeAnimation();
+
+	DefaultJumpAnimStartPosition = JumpAnimStartPosition;
+}
+
 void UDesertFoxAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
 	Super::NativeUpdateAnimation(DeltaSeconds);
@@ -15,6 +22,8 @@ void UDesertFoxAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		CurrentSpeed = DesertFoxCharacter->GetVelocity().Size();
 		CurrentSpeed2D = DesertFoxCharacter->GetVelocity().Size2D();
+
+		JumpAnimStartPosition = DesertFoxCharacter->CanReadyToJump() ? 0.0f : DefaultJumpAnimStartPosition;
 
 		UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(DesertFoxCharacter->GetCharacterMovement());
 		if (DesertFoxMovement)

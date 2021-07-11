@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DesertFoxTypes.generated.h"
 
 UENUM(BlueprintType)
 enum class EDesertFoxMovementState : uint8

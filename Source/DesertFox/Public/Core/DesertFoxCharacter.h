@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "DesertFoxTypes.h"
+#include "OptionalWrapper.h"
 #include "GameFramework/Character.h"
 #include "DesertFoxCharacter.generated.h"
 
@@ -27,10 +28,11 @@ public:
 	void SlowWalk();
 
 	void SaveMovementState();
-	void RestoreMovementState(bool bForceUpdate = false);
+	void RestoreMovementState();
 
 	void StartJump();
 	void RealJump();
+	bool CanReadyToJump() const;
 
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
@@ -41,7 +43,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
-		float LatentJumpTime = 0.2f;
+		FOptionalFloat ReadyToJumpTime = 0.2f;
 
 };
 
