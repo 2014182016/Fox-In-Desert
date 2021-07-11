@@ -16,6 +16,10 @@ class ADesertFoxCharacter : public ACharacter
 public:
 	ADesertFoxCharacter(const FObjectInitializer& ObjectInitializer);
 
+	// {{ AActor Interface
+	virtual void Tick(float DeltaSeconds) override;
+	// }} AActor Interface
+
 	// {{ ACharacter Interface
 	virtual void Landed(const FHitResult& Hit) override;
 	// }} ACharacter Interface
@@ -25,32 +29,87 @@ public:
 
 public:
 	/** Characater turns into a running movement state */
-	void Run();
+	virtual void Run();
 	/** Characater turns into a slow walking movement state */
-	void SlowWalk();
+	virtual void SlowWalk();
 	/** Characater turns into a previous movement state  */
-	void RestoreMovementState();
+	virtual void RestoreMovementState();
 
 	/** Characater begins to prepare for the jump  */
-	void StartJump();
+	virtual void StartJump();
 	/** Characater performs jump */
-	void RealJump();
+	virtual void RealJump();
 	/** Returns true if the character can ready to jump */
-	bool CanReadyToJump() const;
+	virtual bool CanReadyToJump() const;
+
+	// {{ Binding Action Function for Timeline
+	void StartLookLeft();
+	void StopLookLeft();
+
+	void StartLookRight();
+	void StopLookRight();
+	// }} Binding Action Function for Timeline
+
+protected:
+	// {{ AActor Interface
+	virtual void BeginPlay() override;
+	// }} AActor Interface
+
+protected:
+	// {{ Timeline Binding Function
+	UFUNCTION()
+		void LeftLookHandleProgress(float InterpValue);
+
+	UFUNCTION()
+		void RightLookHandleProgress(float InterpValue);
+	// }} Timeline Binding Function
+
+public:
+	/** Curve that indicates how far the character looks to the left whene pressed left */
+	float CurrentLookDegree;
 
 protected:
 	/** Binding the camera to the character for fixed distance */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class USpringArmComponent* CameraBoom;
 
-	/** Third person camera for player*/
+	/** Third person camera for player */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
-private:
-	/* If the value is set, the jump is executed after a certain period of time. If not, it's done immediately */
+	/** If the value is set, the jump is executed after a certain period of time. If not, it's done immediately */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 		FOptionalFloat ReadyToJumpTime = 0.2f;
+
+	/** Timeline play rate in context. X is forward play rate, Y is reverse play rate */
+	UPROPERTY(EditAnywhere, Category = "Timeline", meta = (AllowPrivateAccess = "true"))
+		FVector2D LookPlayRate = FVector2D(1.0f);
+
+	/** Timeline play rate in context when opposition input pressed. X is forward play rate, Y is reverse play rate */
+	UPROPERTY(EditAnywhere, Category = "Timeline", meta = (AllowPrivateAccess = "true"))
+		FVector2D OppositionLookPlayRate = FVector2D(1.0f);
+
+private:
+	/** Curve that indicates how far the character looks to the left whene pressed left */
+	UPROPERTY(EditDefaultsOnly, Category = "Timeline", meta = (AllowPrivateAccess = true))
+		class UCurveFloat* LeftLookCurve;
+
+	/** Curve that indicates how far the character looks to the left whene pressed right */
+	UPROPERTY(EditDefaultsOnly, Category = "Timeline", meta = (AllowPrivateAccess = true))
+		class UCurveFloat* RightLookCurve;
+
+private:
+	// {{ Timeline Components
+	UPROPERTY()
+		class UTimelineComponent* LeftLookTimelineComponent;
+
+	UPROPERTY()
+		class UTimelineComponent* RightLookTimelineComponent;
+	// }} Timeline Components
+
+private:
+	/** It indicates how far the rotation animation should go. X is left value, Y is right value */
+	FVector2D LookAmount;
 
 };
 

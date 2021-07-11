@@ -24,6 +24,10 @@ void ADesertFoxPlayerController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("Run"), IE_Released, this, &ADesertFoxPlayerController::StopRun);
 	InputComponent->BindAction(TEXT("SlowWalk"), IE_Pressed, this, &ADesertFoxPlayerController::StartSlowWalk);
 	InputComponent->BindAction(TEXT("SlowWalk"), IE_Released, this, &ADesertFoxPlayerController::StopSlowWalk);
+	InputComponent->BindAction(TEXT("LookLeft"), IE_Pressed, this, &ADesertFoxPlayerController::StartLookLeft);
+	InputComponent->BindAction(TEXT("LookLeft"), IE_Released, this, &ADesertFoxPlayerController::StopLookLeft);
+	InputComponent->BindAction(TEXT("LookRight"), IE_Pressed, this, &ADesertFoxPlayerController::StartLookRight);
+	InputComponent->BindAction(TEXT("LookRight"), IE_Released, this, &ADesertFoxPlayerController::StopLookRight);
 	// }} BindAction
 }
 
@@ -120,5 +124,41 @@ void ADesertFoxPlayerController::StopSlowWalk()
 	if (IsValid(DesertFoxCharacter))
 	{
 		DesertFoxCharacter->RestoreMovementState();
+	}
+}
+
+void ADesertFoxPlayerController::StartLookLeft()
+{
+	ADesertFoxCharacter* const DesertFoxCharacter = Cast<ADesertFoxCharacter>(GetCharacter());
+	if (IsValid(DesertFoxCharacter))
+	{
+		DesertFoxCharacter->StartLookLeft();
+	}
+}
+
+void ADesertFoxPlayerController::StopLookLeft()
+{
+	ADesertFoxCharacter* const DesertFoxCharacter = Cast<ADesertFoxCharacter>(GetCharacter());
+	if (IsValid(DesertFoxCharacter))
+	{
+		DesertFoxCharacter->StopLookLeft();
+	}
+}
+
+void ADesertFoxPlayerController::StartLookRight()
+{
+	ADesertFoxCharacter* const DesertFoxCharacter = Cast<ADesertFoxCharacter>(GetCharacter());
+	if (IsValid(DesertFoxCharacter))
+	{
+		DesertFoxCharacter->StartLookRight();
+	}
+}
+
+void ADesertFoxPlayerController::StopLookRight()
+{
+	ADesertFoxCharacter* const DesertFoxCharacter = Cast<ADesertFoxCharacter>(GetCharacter());
+	if (IsValid(DesertFoxCharacter))
+	{
+		DesertFoxCharacter->StopLookRight();
 	}
 }

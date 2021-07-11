@@ -33,6 +33,10 @@ public:
 	void StopRun();
 	void StartSlowWalk();
 	void StopSlowWalk();
+	void StartLookLeft();
+	void StopLookLeft();
+	void StartLookRight();
+	void StopLookRight();
 	// }} Bind Action Function
 
 protected:
