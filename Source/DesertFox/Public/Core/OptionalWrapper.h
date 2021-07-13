@@ -111,7 +111,7 @@ struct FOptionalBool : public FOptionalBase
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalBool, bool)
 
 protected:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true", EditCondition = "bIsSet"))
 		bool Value;
 };
 
@@ -122,7 +122,7 @@ struct FOptionalInt : public FOptionalBase
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalInt, int32)
 
 protected:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true", EditCondition = "bIsSet"))
 		int32 Value;
 };
 
@@ -133,7 +133,7 @@ struct FOptionalFloat : public FOptionalBase
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalFloat, float)
 
 protected:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true", EditCondition = "bIsSet"))
 		float Value;
 };
 
@@ -144,7 +144,7 @@ struct FOptionalVector : public FOptionalBase
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalVector, FVector)
 
 protected:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true", EditCondition = "bIsSet"))
 		FVector Value;
 };
 
@@ -155,6 +155,6 @@ struct FOptionalRotator : public FOptionalBase
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalRotator, FRotator)
 
 protected:
-	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditDefaultsOnly, meta = (AllowPrivateAccess = "true", EditCondition = "bIsSet"))
 		FRotator Value;
 };
