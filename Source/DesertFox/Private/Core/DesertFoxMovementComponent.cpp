@@ -122,6 +122,11 @@ bool UDesertFoxMovementComponent::CanRun() const
 	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;
 }
 
+bool UDesertFoxMovementComponent::CanWalk() const
+{
+	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;
+}
+
 bool UDesertFoxMovementComponent::CanSlowWalk() const
 {
 	return IsWalking() && CurrentMovementState != EDesertFoxMovementState::Jumping;

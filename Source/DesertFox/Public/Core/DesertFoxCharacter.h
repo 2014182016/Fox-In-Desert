@@ -30,6 +30,8 @@ public:
 public:
 	/** Characater turns into a running movement state */
 	virtual void Run();
+	/** Characater turns into a walking movement state */
+	virtual void Walk();
 	/** Characater turns into a slow walking movement state */
 	virtual void SlowWalk();
 	/** Characater turns into a previous movement state  */

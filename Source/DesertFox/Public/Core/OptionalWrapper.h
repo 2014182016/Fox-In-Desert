@@ -85,13 +85,13 @@
 		} 
 
 USTRUCT(BlueprintType)
-struct FOptionalBase
+struct FOptional
 {
 	GENERATED_USTRUCT_BODY()
 
 public:
-	FOptionalBase() { Reset(); }
-	~FOptionalBase() { Reset(); }
+	FOptional() { Reset(); }
+	~FOptional() { Reset(); }
 
 	FORCEINLINE explicit operator bool() const { return bIsSet; }
 
@@ -105,7 +105,7 @@ protected:
 };
 
 USTRUCT(BlueprintType)
-struct FOptionalBool : public FOptionalBase
+struct FOptionalBool : public FOptional
 {
 	GENERATED_USTRUCT_BODY()
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalBool, bool)
@@ -116,7 +116,7 @@ protected:
 };
 
 USTRUCT(BlueprintType)
-struct FOptionalInt : public FOptionalBase
+struct FOptionalInt : public FOptional
 {
 	GENERATED_USTRUCT_BODY()
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalInt, int32)
@@ -127,7 +127,7 @@ protected:
 };
 
 USTRUCT(BlueprintType)
-struct FOptionalFloat : public FOptionalBase
+struct FOptionalFloat : public FOptional
 {
 	GENERATED_USTRUCT_BODY()
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalFloat, float)
@@ -138,7 +138,7 @@ protected:
 };
 
 USTRUCT(BlueprintType)
-struct FOptionalVector : public FOptionalBase
+struct FOptionalVector : public FOptional
 {
 	GENERATED_USTRUCT_BODY()
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalVector, FVector)
@@ -149,7 +149,7 @@ protected:
 };
 
 USTRUCT(BlueprintType)
-struct FOptionalRotator : public FOptionalBase
+struct FOptionalRotator : public FOptional
 {
 	GENERATED_USTRUCT_BODY()
 	OPTIONAL_WEAPPER_IMPLEMENT(FOptionalRotator, FRotator)

@@ -101,6 +101,18 @@ void ADesertFoxCharacter::Run()
 	}
 }
 
+void ADesertFoxCharacter::Walk()
+{
+	UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(GetCharacterMovement());
+	if (DesertFoxMovement)
+	{
+		if (DesertFoxMovement->CanWalk())
+		{
+			DesertFoxMovement->SetMovementState(EDesertFoxMovementState::Walking);
+		}
+	}
+}
+
 void ADesertFoxCharacter::SlowWalk()
 {
 	UDesertFoxMovementComponent* DesertFoxMovement= Cast<UDesertFoxMovementComponent>(GetCharacterMovement());

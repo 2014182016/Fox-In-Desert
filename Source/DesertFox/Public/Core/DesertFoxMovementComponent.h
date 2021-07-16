@@ -60,6 +60,8 @@ public:
 
 	/** Returns true if the character can change to the running movement state */
 	virtual bool CanRun() const;
+	/** Returns true if the character can change to the walking movement state */
+	virtual bool CanWalk() const;
 	/** Returns true if the character can change to the slow walking movement state */
 	virtual bool CanSlowWalk() const;
 	/** Returns true if the character can change to the jumping movement state */

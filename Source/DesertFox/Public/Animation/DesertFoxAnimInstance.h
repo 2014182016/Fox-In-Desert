@@ -59,7 +59,7 @@ protected:
 
 	/** How fast you'll play the animation you're looking at */
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
-		float LookAnimationRate = 1.0f;
+		float LookAnimRate = 1.0f;
 
 private:
 	/** Default value of JumpAnimStartPosition */

@@ -24,7 +24,7 @@ void UDesertFoxAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		CurrentSpeed2D = DesertFoxCharacter->GetVelocity().Size2D();
 
 		JumpAnimStartPosition = DesertFoxCharacter->CanReadyToJump() ? 0.0f : DefaultJumpAnimStartPosition;
-		CurrentLookDegree = DesertFoxCharacter->CurrentLookDegree * LookAnimationRate;
+		CurrentLookDegree = DesertFoxCharacter->CurrentLookDegree * LookAnimRate;
 
 		UDesertFoxMovementComponent* DesertFoxMovement = Cast<UDesertFoxMovementComponent>(DesertFoxCharacter->GetCharacterMovement());
 		if (DesertFoxMovement)
