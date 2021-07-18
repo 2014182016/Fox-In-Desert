@@ -47,7 +47,7 @@ void AWIDPlayerState::UpdateStamina(float DeltaSeconds)
 			}
 		}
 	}
-	else
+	else if(!WIDMovement->IsJumping())
 	{
 		if (CurrentStamina < MaxStamina)
 		{

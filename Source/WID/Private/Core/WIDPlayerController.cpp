@@ -3,6 +3,7 @@
 
 #include "Core/WIDPlayerController.h"
 #include "Core/WIDCharacter.h"
+#include "Core/WIDHUD.h"
 
 void AWIDPlayerController::SetupInputComponent()
 {
@@ -28,6 +29,8 @@ void AWIDPlayerController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("LookLeft"), IE_Released, this, &AWIDPlayerController::StopLookLeft);
 	InputComponent->BindAction(TEXT("LookRight"), IE_Pressed, this, &AWIDPlayerController::StartLookRight);
 	InputComponent->BindAction(TEXT("LookRight"), IE_Released, this, &AWIDPlayerController::StopLookRight);
+	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode0"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 0);
+	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode1"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 1);
 	// }} BindAction
 }
 
@@ -97,6 +100,13 @@ void AWIDPlayerController::StartRun()
 	if (IsValid(WIDCharacter))
 	{
 		WIDCharacter->Run();
+
+		AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
+		if (IsValid(WIDHUD))
+		{
+			WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::Update);
+			WIDHUD->UpdateHudEventWithValue(EHudType::PlayerState, EHudEvent::Visibility, 0);
+		}
 	}
 }
 
@@ -160,5 +170,20 @@ void AWIDPlayerController::StopLookRight()
 	if (IsValid(WIDCharacter))
 	{
 		WIDCharacter->StopLookRight();
+	}
+}
+
+void AWIDPlayerController::ChangeCameraMode(const int32 NewMode)
+{
+	ECameraMode NewCameraMode = static_cast<ECameraMode>(NewMode);
+
+	switch (NewCameraMode)
+	{
+	case ECameraMode::ControllerIndependent:
+		bUsePawnControlRotation = true;
+		break;
+	case ECameraMode::ControllerDependent:
+		bUsePawnControlRotation = false;
+		break;
 	}
 }

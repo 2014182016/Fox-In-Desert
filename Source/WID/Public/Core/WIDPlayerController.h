@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "WIDTypes.h"
 #include "GameFramework/PlayerController.h"
 #include "WIDPlayerController.generated.h"
 
@@ -14,6 +15,9 @@ class WID_API AWIDPlayerController : public APlayerController
 {
 	GENERATED_BODY()
 	
+public:
+	DECLARE_DELEGATE_OneParam(FCameraMode, int32);
+
 public:
 	// {{ APlayerController interface
 	virtual void SetupInputComponent() override;
@@ -37,6 +41,7 @@ public:
 	void StopLookLeft();
 	void StartLookRight();
 	void StopLookRight();
+	UFUNCTION(exec) void ChangeCameraMode(const int32 NewMode);
 	// }} Bind Action Function
 
 protected:

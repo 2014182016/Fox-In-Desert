@@ -2,6 +2,7 @@
 
 
 #include "Core/WIDHUD.h"
+#include "Widget/WIDUserWidget.h"
 #include "Blueprint/UserWidget.h"
 
 void AWIDHUD::BeginPlay()
@@ -56,5 +57,36 @@ UUserWidget* AWIDHUD::FindWidget(const EHudType HudType)
 
 void AWIDHUD::UpdateHudEvent(const EHudType HudType, const EHudEvent HudEvent)
 {
+	WID::THudEventInfo HudEventInfo;
+	UpdateHudEventWithValue(HudType, HudEvent, HudEventInfo);
+}
 
+void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::THudEventInfo& HudEventInfo)
+{
+	WID::THudEventInfoList HudEventInfoList;
+	HudEventInfoList.Add(HudEventInfo);
+	UpdateHudEventWithValue(HudType, HudEvent, HudEventInfoList);
+}
+
+void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList)
+{
+	if (HudType != EHudType::All)
+	{
+		UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(FindWidget(HudType));
+		if (WIDWidget)
+		{
+			WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
+		}
+	}
+	else
+	{
+		for (auto& WidgetInfo : CurrentWidgetList)
+		{
+			UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(WidgetInfo.Value);
+			if (WIDWidget)
+			{
+				WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
+			}
+		}
+	}
 }

@@ -2,3 +2,17 @@
 
 
 #include "Core/WIDTypes.h"
+
+bool WID::CheckEventInfo(THudEventInfo EvnetInfo)
+{
+	return EvnetInfo.IsEmpty();
+}
+
+bool WID::CheckEventInfo(THudEventInfoList EvnetInfoList, int32 Index)
+{
+	if (EvnetInfoList.IsValidIndex(Index))
+	{
+		return EvnetInfoList[Index].IsEmpty();
+	}
+	return false;
+}
