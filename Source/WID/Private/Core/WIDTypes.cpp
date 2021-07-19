@@ -3,12 +3,12 @@
 
 #include "Core/WIDTypes.h"
 
-bool WID::CheckEventInfo(THudEventInfo EvnetInfo)
+bool WID::CheckEventInfo(FHudEventInfo EvnetInfo)
 {
 	return EvnetInfo.IsEmpty();
 }
 
-bool WID::CheckEventInfo(THudEventInfoList EvnetInfoList, int32 Index)
+bool WID::CheckEventInfo(FHudEventInfoList EvnetInfoList, int32 Index)
 {
 	if (EvnetInfoList.IsValidIndex(Index))
 	{

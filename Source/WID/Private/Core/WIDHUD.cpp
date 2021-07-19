@@ -57,36 +57,78 @@ UUserWidget* AWIDHUD::FindWidget(const EHudType HudType)
 
 void AWIDHUD::UpdateHudEvent(const EHudType HudType, const EHudEvent HudEvent)
 {
-	WID::THudEventInfo HudEventInfo;
+	WID::FHudEventInfo HudEventInfo;
 	UpdateHudEventWithValue(HudType, HudEvent, HudEventInfo);
 }
 
-void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::THudEventInfo& HudEventInfo)
+void AWIDHUD::UpdateHudEventByTypeFlags(const int32 TypeFlags, const EHudEvent HudEvent)
 {
-	WID::THudEventInfoList HudEventInfoList;
+	for (auto& CurrentWidgetInfo : CurrentWidgetList)
+	{
+		EHudType CurrentType = CurrentWidgetInfo.Key;
+		if (CurrentType & TypeFlags)
+		{
+			UWIDUserWidget* WIDWidget = CastChecked<UWIDUserWidget>(CurrentWidgetInfo.Value);
+			if (WIDWidget)
+			{
+				WID::FHudEventInfoList HudEventInfoList;
+				WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
+			}
+		}
+	}
+}
+
+void AWIDHUD::UpdateHudEventByEventFlags(const EHudType HudType, const int32 EventFlags)
+{
+	UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(FindWidget(HudType));
+	if (WIDWidget)
+	{
+		for (EHudEvent EventType : TEnumRange<EHudEvent>())
+		{
+			if (EventType & EventFlags)
+			{
+				WID::FHudEventInfoList HudEventInfoList;
+				WIDWidget->UpdateHudEvent(EventType, HudEventInfoList);
+			}
+		}
+	}
+}
+
+void AWIDHUD::UpdateHudEventAllFlags(const int32 TypeFlags, const int32 EventFlags)
+{
+	for (auto& CurrentWidgetInfo : CurrentWidgetList)
+	{
+		EHudType CurrentType = CurrentWidgetInfo.Key;
+		if (CurrentType & TypeFlags)
+		{
+			for (EHudEvent EventType : TEnumRange<EHudEvent>())
+			{
+				if (EventType & EventFlags)
+				{
+					UWIDUserWidget* WIDWidget = CastChecked<UWIDUserWidget>(CurrentWidgetInfo.Value);
+					if (WIDWidget)
+					{
+						WID::FHudEventInfoList HudEventInfoList;
+						WIDWidget->UpdateHudEvent(EventType, HudEventInfoList);
+					}
+				}
+			}
+		}
+	}
+}
+
+void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::FHudEventInfo& HudEventInfo)
+{
+	WID::FHudEventInfoList HudEventInfoList;
 	HudEventInfoList.Add(HudEventInfo);
 	UpdateHudEventWithValue(HudType, HudEvent, HudEventInfoList);
 }
 
-void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList)
+void AWIDHUD::UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList)
 {
-	if (HudType != EHudType::All)
+	UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(FindWidget(HudType));
+	if (WIDWidget)
 	{
-		UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(FindWidget(HudType));
-		if (WIDWidget)
-		{
-			WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
-		}
-	}
-	else
-	{
-		for (auto& WidgetInfo : CurrentWidgetList)
-		{
-			UWIDUserWidget* WIDWidget = Cast<UWIDUserWidget>(WidgetInfo.Value);
-			if (WIDWidget)
-			{
-				WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
-			}
-		}
+		WIDWidget->UpdateHudEvent(HudEvent, HudEventInfoList);
 	}
 }

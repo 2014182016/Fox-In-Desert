@@ -8,15 +8,21 @@
 /** Specify a function that does nothing */
 #define EmptyFunction {}
 
+/** Defines all bitwise operators related to int32 for enum classes so it can be available without need for a static_cast */
+#define ENUM_CLASS_FLAGS_INT(Enum) \
+	inline constexpr bool operator| (Enum& Lhs, int32 Rhs) { return (static_cast<int32>(Lhs) | Rhs); } \
+	inline constexpr bool operator& (Enum& Lhs, int32 Rhs) { return (static_cast<int32>(Lhs) & Rhs); } \
+	inline constexpr bool operator^ (Enum& Lhs, int32 Rhs) { return (static_cast<int32>(Lhs) ^ Rhs); }
+
 namespace WID
 {
 	/** Data type to use for the Hud Event Information */
-	using THudEventInfo = FVariant;
-	using THudEventInfoList = TArray<FVariant>;
+	using FHudEventInfo = FVariant;
+	using FHudEventInfoList = TArray<FVariant>;
 
 	/** Check that the Hud Event Information is delivered correctly */
-	bool CheckEventInfo(THudEventInfo EvnetInfo);
-	bool CheckEventInfo(THudEventInfoList EvnetInfoList, int32 Index);
+	bool CheckEventInfo(FHudEventInfo EvnetInfo);
+	bool CheckEventInfo(FHudEventInfoList EvnetInfoList, int32 Index);
 }
 
 /** The state of character movement */
@@ -32,21 +38,29 @@ enum class EWIDMovementState : uint8
 };
 
 /** Type to distinguish widgets attached to the hud */
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (Bitflags))
 enum class EHudType : uint8
 {
-	MainMenu,
-	PlayerState,
-	All,
+	MainMenu		= 0,
+	PlayerState		= 1 << 0,
+	Max				= 1 << 1 UMETA(Hidden),
 };
+ENUM_CLASS_FLAGS(EHudType);
+ENUM_CLASS_FLAGS_INT(EHudType);
+ENUM_RANGE_BY_COUNT(EHudType, EHudType::Max);
 
 /** Type to distinguish events when calling event to the hud */
-UENUM(BlueprintType)
+UENUM(BlueprintType, meta = (Bitflags))
 enum class EHudEvent : uint8
 {
-	Update,
-	Visibility,
+	Update				= 0,
+	Visibility			= 1 << 0,
+	ToggleVisibility	= 1 << 1,
+	Max					= 1 << 2 UMETA(Hidden),
 };
+ENUM_CLASS_FLAGS(EHudEvent);
+ENUM_CLASS_FLAGS_INT(EHudEvent);
+ENUM_RANGE_BY_COUNT(EHudEvent, EHudEvent::Max);
 
 /** Each camera mode to control */
 UENUM(BlueprintType)

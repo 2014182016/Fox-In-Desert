@@ -16,7 +16,7 @@ class WID_API UPlayerStateWidget : public UWIDUserWidget
 
 public:
 	/** Receive events from the hud and do the desired actions in this widget */
-	virtual void UpdateHudEvent(const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList) override;
+	virtual void UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList) override;
 
 protected:
 	// {{ UUserWidget Interface

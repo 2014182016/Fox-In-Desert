@@ -12,7 +12,7 @@ void UPlayerStateWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTi
 	UpdateStaminaGauge();
 }
 
-void UPlayerStateWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList)
+void UPlayerStateWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList)
 {
 	Super::UpdateHudEvent(HudEvent, HudEventInfoList);
 

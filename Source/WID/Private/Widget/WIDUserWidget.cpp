@@ -3,7 +3,7 @@
 
 #include "Widget/WIDUserWidget.h"
 
-void UWIDUserWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList)
+void UWIDUserWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList)
 {
 
 	switch (HudEvent)
@@ -14,6 +14,9 @@ void UWIDUserWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::THudEve
 			ESlateVisibility NewVisibility = ESlateVisibility(HudEventInfoList[0].GetValue<int32>());
 			SetVisibility(NewVisibility);
 		}
+		break;
+	case EHudEvent::ToggleVisibility:
+		SetVisibility(IsVisible() ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
 		break;
 	}
 }

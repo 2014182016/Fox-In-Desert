@@ -31,6 +31,7 @@ void AWIDPlayerController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("LookRight"), IE_Released, this, &AWIDPlayerController::StopLookRight);
 	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode0"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 0);
 	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode1"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 1);
+	InputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AWIDPlayerController::ToggleMainMenu);
 	// }} BindAction
 }
 
@@ -105,7 +106,6 @@ void AWIDPlayerController::StartRun()
 		if (IsValid(WIDHUD))
 		{
 			WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::Update);
-			WIDHUD->UpdateHudEventWithValue(EHudType::PlayerState, EHudEvent::Visibility, 0);
 		}
 	}
 }
@@ -185,5 +185,14 @@ void AWIDPlayerController::ChangeCameraMode(const int32 NewMode)
 	case ECameraMode::ControllerDependent:
 		bUsePawnControlRotation = false;
 		break;
+	}
+}
+
+void AWIDPlayerController::ToggleMainMenu()
+{
+	AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
+	if (IsValid(WIDHUD))
+	{
+		WIDHUD->UpdateHudEvent(EHudType::MainMenu, EHudEvent::ToggleVisibility);
 	}
 }

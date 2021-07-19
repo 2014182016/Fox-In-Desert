@@ -17,6 +17,6 @@ class WID_API UWIDUserWidget : public UUserWidget
 	
 public:
 	/** Receive events from the hud and do the desired actions in this widget */
-	virtual void UpdateHudEvent(const EHudEvent HudEvent, const WID::THudEventInfoList& HudEventInfoList);
+	virtual void UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList);
 
 };
