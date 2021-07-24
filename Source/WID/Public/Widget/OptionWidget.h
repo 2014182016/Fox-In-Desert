@@ -4,14 +4,14 @@
 
 #include "CoreMinimal.h"
 #include "Widget/WIDUserWidget.h"
-#include "MainMenuWidget.generated.h"
+#include "OptionWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WID_API UMainMenuWidget : public UWIDUserWidget
+class WID_API UOptionWidget : public UWIDUserWidget
 {
 	GENERATED_BODY()
-
+	
 };

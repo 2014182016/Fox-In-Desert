@@ -194,5 +194,16 @@ void AWIDPlayerController::ToggleMainMenu()
 	if (IsValid(WIDHUD))
 	{
 		WIDHUD->UpdateHudEvent(EHudType::MainMenu, EHudEvent::ToggleVisibility);
+
+		if (bShowMouseCursor)
+		{
+			SetInputMode(FInputModeGameOnly());
+		}
+		else
+		{
+			SetInputMode(FInputModeUIOnly());
+		}
+
+		bShowMouseCursor = !bShowMouseCursor;
 	}
 }

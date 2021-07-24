@@ -5,7 +5,6 @@
 
 void UWIDUserWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList)
 {
-
 	switch (HudEvent)
 	{
 	case EHudEvent::Visibility:

@@ -41,8 +41,10 @@ public:
 	void StopLookLeft();
 	void StartLookRight();
 	void StopLookRight();
-	UFUNCTION(exec) void ChangeCameraMode(const int32 NewMode);
-	UFUNCTION(exec) void ToggleMainMenu();
+	UFUNCTION(exec) 
+		void ChangeCameraMode(const int32 NewMode);
+	UFUNCTION(exec)
+		void ToggleMainMenu();
 	// }} Bind Action Function
 
 protected:

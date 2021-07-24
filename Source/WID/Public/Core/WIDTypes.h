@@ -45,9 +45,11 @@ enum class EWIDMovementState : uint8
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EHudType : uint8
 {
-	MainMenu		= 0,
-	PlayerState		= 1 << 0,
-	Max				= 1 << 1 UMETA(Hidden),
+	None			= 0 UMETA(Hidden),
+	MainMenu		= 1 << 0,
+	PlayerState		= 1 << 1,
+	Option			= 1 << 2,
+	Max				= 1 << 3 UMETA(Hidden),
 };
 ENUM_CLASS_FLAGS(EHudType);
 ENUM_CLASS_FLAGS_INT(EHudType);
@@ -57,10 +59,11 @@ ENUM_RANGE_BY_COUNT(EHudType, EHudType::Max);
 UENUM(BlueprintType, meta = (Bitflags))
 enum class EHudEvent : uint8
 {
-	Update				= 0,
-	Visibility			= 1 << 0,
-	ToggleVisibility	= 1 << 1,
-	Max					= 1 << 2 UMETA(Hidden),
+	None				= 0 UMETA(Hidden),
+	Update				= 1 << 1,
+	Visibility			= 1 << 2,
+	ToggleVisibility	= 1 << 3,
+	Max					= 1 << 4 UMETA(Hidden),
 };
 ENUM_CLASS_FLAGS(EHudEvent);
 ENUM_CLASS_FLAGS_INT(EHudEvent);
