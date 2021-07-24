@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "OptionalWrapper.h"
 #include "WIDTypes.generated.h"
 
 /** Specify a function that does nothing */
@@ -23,10 +24,13 @@ namespace WID
 	/** Check that the Hud Event Information is delivered correctly */
 	bool CheckEventInfo(FHudEventInfo EvnetInfo);
 	bool CheckEventInfo(FHudEventInfoList EvnetInfoList, int32 Index);
+
+	/** Distance to inspect the floor */
+	constexpr float CheckFloorDistance = 50.0f;
 }
 
 /** The state of character movement */
-UENUM(BlueprintType)
+UENUM()
 enum class EWIDMovementState : uint8
 {
 	None,
@@ -69,4 +73,3 @@ enum class ECameraMode : uint8
 	ControllerIndependent,
 	ControllerDependent,
 };
-
