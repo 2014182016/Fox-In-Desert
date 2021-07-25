@@ -4,6 +4,8 @@
 #include "Core/WIDPlayerState.h"
 #include "Core/WIDCharacter.h"
 #include "Core/WIDMovementComponent.h"
+#include "Core/WIDPlayerController.h"
+#include "Core/WIDHUD.h"
 
 AWIDPlayerState::AWIDPlayerState()
 {
@@ -37,7 +39,11 @@ void AWIDPlayerState::UpdateStamina(float DeltaSeconds)
 
 	if (WIDMovement->IsRunning())
 	{
-		if (CurrentStamina > 0.0f)
+		if (CurrentStamina > 0.0f 
+#if WITH_EDITOR
+			&& !bInfiniteStamina
+#endif // WITH_EDITOR
+			)
 		{
 			CurrentStamina -= StaminaConsumptionPerSecond * DeltaSeconds;
 			if (CurrentStamina <= 0.0f)
@@ -70,3 +76,41 @@ void AWIDPlayerState::RunOutStamina(AWIDCharacter* WIDCharacter)
 }
 
 void AWIDPlayerState::FillUpStamina(AWIDCharacter* WIDCharacter) EmptyFunction
+
+float AWIDPlayerState::GetStaminaPercent() const
+{
+	return (MaxStamina < FLT_EPSILON) ? 0.0f : FMath::Clamp<float>(CurrentStamina / MaxStamina, 0.0f, 1.0f);
+}
+
+float AWIDPlayerState::GetHealthPercent() const
+{
+	return (MaxHealth < FLT_EPSILON) ? 0.0f : FMath::Clamp<float>(CurrentHealth / MaxHealth, 0.0f, 1.0f);
+}
+
+void AWIDPlayerState::AddStamina(const float Value)
+{
+	CurrentStamina = FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
+}
+
+void AWIDPlayerState::AddHealth(const float Value)
+{
+	CurrentHealth = FMath::Clamp<float>(CurrentHealth + Value, 0.0f, MaxHealth);
+
+	AWIDPlayerController* WIDPlayerController = Cast<AWIDPlayerController>(GetOwner());
+	if (IsValid(WIDPlayerController))
+	{
+		AWIDHUD* WIDHUD = WIDPlayerController->GetHUD<AWIDHUD>();
+		if(IsValid(WIDHUD))
+		{
+			WIDHUD->UpdateHudEventWithValue(EHudType::PlayerState, EHudEvent::UpdateHealth, CurrentHealth);
+		}
+	}
+
+	if (CurrentHealth <= 0.0f)
+	{
+		if (DiedDelegate.IsBound())
+		{
+			DiedDelegate.Broadcast();
+		}
+	}
+}

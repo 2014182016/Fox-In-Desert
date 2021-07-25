@@ -4,6 +4,7 @@
 #include "Core/WIDPlayerController.h"
 #include "Core/WIDCharacter.h"
 #include "Core/WIDHUD.h"
+#include "Core/WIDPlayerState.h"
 
 void AWIDPlayerController::SetupInputComponent()
 {
@@ -105,7 +106,7 @@ void AWIDPlayerController::StartRun()
 		AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
 		if (IsValid(WIDHUD))
 		{
-			WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::Update);
+			WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
 		}
 	}
 }
@@ -205,5 +206,40 @@ void AWIDPlayerController::ToggleMainMenu()
 		}
 
 		bShowMouseCursor = !bShowMouseCursor;
+	}
+}
+
+void AWIDPlayerController::NotifyDied()
+{
+	// UnPossesses to block character's movement
+	UnPossess();
+}
+
+void AWIDPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	// NotifyDied function is called through player state
+	AWIDPlayerState* WIDPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIDPlayerState))
+	{
+		WIDPlayerState->DiedDelegate.AddUObject(this, &AWIDPlayerController::NotifyDied);
+
+		AWIDCharacter* WIDCharacter = Cast<AWIDCharacter>(aPawn);
+		if (IsValid(WIDCharacter))
+		{
+			WIDPlayerState->DiedDelegate.AddUObject(WIDCharacter, &AWIDCharacter::NotifyDied);
+		}
+	}
+}
+
+void AWIDPlayerController::OnUnPossess()
+{
+	Super::OnUnPossess();
+
+	AWIDPlayerState* WIDPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIDPlayerState) && WIDPlayerState->DiedDelegate.IsBound())
+	{
+		WIDPlayerState->DiedDelegate.Clear();
 	}
 }

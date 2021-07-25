@@ -31,25 +31,25 @@ public:
 	UPROPERTY(EditDefaultsOnly)
 		int32 SurfaceType;
 	/** Sound to play at footstep */
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Sound")
 		class USoundCue* SoundCue;
 	/** Decal to play at footstep */
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Decal")
 		class UMaterialInstance* DecalMaterial;
 	/** Whether to use niagara particle */
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Particle")
 		bool bUseNiagaraParitlce;
 	/** Particle to play at footstep */
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "!bUseNiagaraParitlce"))
+	UPROPERTY(EditDefaultsOnly, Category = "Particle", meta = (EditCondition = "!bUseNiagaraParitlce"))
 		class UParticleSystem* Particle;
 	/** Niagara particle to play at footstep */
-	UPROPERTY(EditDefaultsOnly, meta = (EditCondition = "bUseNiagaraParitlce"))
+	UPROPERTY(EditDefaultsOnly, Category = "Particle", meta = (EditCondition = "bUseNiagaraParitlce"))
 		class UNiagaraSystem* NiagaraParticle;
 	/** If there is a decal material, specify the decal size */
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Decal")
 		FVector DecalSize;
 	/** If there is a decal material, specify the decal life span */
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Decal")
 		float DecalLifeSpan;
 };
 

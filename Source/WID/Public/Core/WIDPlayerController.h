@@ -19,10 +19,16 @@ public:
 	DECLARE_DELEGATE_OneParam(FCameraMode, int32);
 
 public:
+	// {{ AController interface
+	virtual void OnPossess(APawn* aPawn) override;
+	virtual void OnUnPossess() override;
+	// }} AController interface
+
 	// {{ APlayerController interface
 	virtual void SetupInputComponent() override;
 	// }} APlayerController interface
 
+public:
 	// {{ Bind Axis Function
 	void MoveForward(const float Value);
 	void MoveRight(const float Value);
@@ -46,6 +52,9 @@ public:
 	UFUNCTION(exec)
 		void ToggleMainMenu();
 	// }} Bind Action Function
+
+	/** Call by player state when character died */
+	void NotifyDied();
 
 protected:
 	/** The speed at which the screen is rotated depends on the this variable */

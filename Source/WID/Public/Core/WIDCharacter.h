@@ -18,6 +18,7 @@ public:
 
 	// {{ AActor Interface
 	virtual void Tick(float DeltaSeconds) override;
+	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	// }} AActor Interface
 
 	// {{ ACharacter Interface
@@ -51,6 +52,11 @@ public:
 	void StartLookRight();
 	void StopLookRight();
 	// }} Binding Action Function for Timeline
+
+	/** Call by player state when character died */
+	void NotifyDied();
+
+	FORCEINLINE bool IsDied() const { return bDied; }
 
 protected:
 	// {{ AActor Interface
@@ -90,6 +96,10 @@ protected:
 	/** Timeline play rate in context when opposition input pressed. X is forward play rate, Y is reverse play rate */
 	UPROPERTY(EditAnywhere, Category = "Timeline", meta = (AllowPrivateAccess = "true"))
 		FVector2D OppositionLookPlayRate = FVector2D(1.0f);
+
+protected:
+	/** True on death */
+	bool bDied;
 
 private:
 	/** Curve that indicates how far the character looks to the left whene pressed left */

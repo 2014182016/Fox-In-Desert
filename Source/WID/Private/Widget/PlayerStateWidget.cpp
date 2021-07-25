@@ -18,12 +18,15 @@ void UPlayerStateWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHu
 
 	switch (HudEvent)
 	{
-	case EHudEvent::Update:
+	case EHudEvent::UpdateStamina:
 		if (!bUpdateStamina)
 		{
 			bUpdateStamina = true;
 			PlayAnimation(StaminaAppearAnim);
 		}
+		break;
+	case EHudEvent::UpdateHealth:
+		UpdateHealthGauge();
 		break;
 	}
 }
@@ -36,9 +39,7 @@ void UPlayerStateWidget::UpdateStaminaGauge()
 	AWIDPlayerState* WIdPlayerState = GetOwningPlayerState<AWIDPlayerState>();
 	if (IsValid(WIdPlayerState))
 	{
-		const float CurrentStamina = WIdPlayerState->GetCurrentStamina();
-		const float MaxStamina = WIdPlayerState->GetMaxStamina();
-		const float StaminaProgress = (MaxStamina < FLT_EPSILON) ? 0.0f : FMath::Clamp<float>(CurrentStamina / MaxStamina, 0.0f, 1.0f);
+		const float StaminaProgress = WIdPlayerState->GetStaminaPercent();
 
 		UMaterialInstanceDynamic* GaugeMaterialInstance = StaminaGauge->GetDynamicMaterial();
 		if (GaugeMaterialInstance)
@@ -50,6 +51,21 @@ void UPlayerStateWidget::UpdateStaminaGauge()
 		{
 			bUpdateStamina = false;
 			PlayAnimationReverse(StaminaAppearAnim);
+		}
+	}
+}
+
+void UPlayerStateWidget::UpdateHealthGauge()
+{
+	AWIDPlayerState* WIdPlayerState = GetOwningPlayerState<AWIDPlayerState>();
+	if (IsValid(WIdPlayerState))
+	{
+		const float HealthProgress = WIdPlayerState->GetHealthPercent();
+
+		UMaterialInstanceDynamic* GaugeMaterialInstance = HealthGauge->GetDynamicMaterial();
+		if (GaugeMaterialInstance)
+		{
+			GaugeMaterialInstance->SetScalarParameterValue(FName("Progress"), HealthProgress);
 		}
 	}
 }

@@ -3,6 +3,8 @@
 #include "Core/WIDCharacter.h"
 #include "Core/WIDMovementComponent.h"
 #include "Core/WIDPlayerController.h"
+#include "Core/WIDPlayerState.h"
+#include "Animation/WIDAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -246,5 +248,35 @@ void AWIDCharacter::StopLookRight()
 
 		RightLookTimelineComponent->SetPlayRate(NewPlayRate);
 		RightLookTimelineComponent->Reverse();
+	}
+}
+
+float AWIDCharacter::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	if (bDied)
+		return 0.0f;
+
+	const float ActualDamage = Super::TakeDamage(DamageAmount, DamageEvent, EventInstigator, DamageCauser);
+
+	AWIDPlayerState* WIDPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIDPlayerState))
+	{
+		WIDPlayerState->AddHealth(-DamageAmount);
+	}
+
+	return ActualDamage;
+}
+
+void AWIDCharacter::NotifyDied()
+{
+	bDied = true;
+
+	if (GetMesh())
+	{
+		UWIDAnimInstance* WIDAnimInstance = Cast<UWIDAnimInstance>(GetMesh()->GetAnimInstance());
+		if (WIDAnimInstance)
+		{
+			WIDAnimInstance->PlayDeathAnimation();
+		}
 	}
 }

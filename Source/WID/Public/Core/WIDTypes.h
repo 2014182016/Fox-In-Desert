@@ -63,7 +63,9 @@ enum class EHudEvent : uint8
 	Update				= 1 << 1,
 	Visibility			= 1 << 2,
 	ToggleVisibility	= 1 << 3,
-	Max					= 1 << 4 UMETA(Hidden),
+	UpdateStamina		= 1 << 4,
+	UpdateHealth		= 1 << 5,
+	Max					= 1 << 6 UMETA(Hidden),
 };
 ENUM_CLASS_FLAGS(EHudEvent);
 ENUM_CLASS_FLAGS_INT(EHudEvent);

@@ -27,10 +27,17 @@ protected:
 	/** If bUpdateStamina is true, update stamian gauge */
 	void UpdateStaminaGauge();
 
+	/** Update health gauge using player state */
+	void UpdateHealthGauge();
+
 protected:
 	/** Display the playerstate's stamina as a value between 0 and 1 */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
 		class UImage* StaminaGauge;
+
+	/** Display the playerstate's health as a value between 0 and 1 */
+	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
+		class UImage* HealthGauge;
 
 	/** Perform an animation that disappears when stamina is 0, and appears when it is 1 */
 	UPROPERTY(Transient, meta = (AllowPrivateAccess = true, BindWidgetAnim))

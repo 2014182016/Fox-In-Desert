@@ -27,7 +27,21 @@ public:
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
-protected:
+public:
+	/** Return the current state calculated as a value between 0 and 1 */
+	float GetStaminaPercent() const;
+	float GetHealthPercent() const;
+
+	/** Reflects the value by adding it to the current state */
+	void AddStamina(const float Value);
+	void AddHealth(const float Value);
+	
+public:
+	/** Invoke bound functions when health reches 0 */
+	DECLARE_MULTICAST_DELEGATE(FDiedDelegate);
+	FDiedDelegate DiedDelegate;
+
+;protected:
 	// {{ AActor Interface
 	virtual void BeginPlay() override;
 	// }} AActor Interface
@@ -59,10 +73,17 @@ protected:
 
 protected:
 	/** The current amount of stamina by calculation */
-	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0))
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
 		float CurrentStamina;
+
 	/** The current amount of health by calculation */
-	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0))
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
 		float CurrentHealth;
+
+#if WITH_EDITOR
+	/** Stamina not reduced, for debugging */
+	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
+		bool bInfiniteStamina;
+#endif // WITH_EDITOR
 	
 };

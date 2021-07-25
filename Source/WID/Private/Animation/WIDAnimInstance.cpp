@@ -40,3 +40,11 @@ void UWIDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		}
 	}
 }
+
+void UWIDAnimInstance::PlayDeathAnimation()
+{
+	bDied = true;
+
+	// Check the maximum number of death animation specified in the animation blueprint
+	DeathAnimationIndex = FMath::RandRange(0, 4);
+}
