@@ -21,6 +21,10 @@ public:
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	// }} AActor Interface
 
+	// {{ APawn Interface
+	virtual void AddMovementInput(FVector WorldDirection, float ScaleValue = 1.0f, bool bForce = false) override;
+	// }} APawn Interface
+	
 	// {{ ACharacter Interface
 	virtual void Landed(const FHitResult& Hit) override;
 	// }} ACharacter Interface
@@ -58,6 +62,9 @@ public:
 
 	FORCEINLINE bool IsDied() const { return bDied; }
 
+	virtual void Sleep();
+	virtual void WakeUp();
+
 protected:
 	// {{ AActor Interface
 	virtual void BeginPlay() override;
@@ -75,6 +82,9 @@ protected:
 public:
 	/** Curve that indicates how far the character looks to the left whene pressed left */
 	float CurrentLookDegree;
+
+	/** The last time moved */
+	float LastMoveStamp;
 
 protected:
 	/** Binding the camera to the character for fixed distance */

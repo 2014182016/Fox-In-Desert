@@ -71,6 +71,8 @@ void AWIDCharacter::BeginPlay()
 		RightLookTimelineComponent = NewObject<UTimelineComponent>(this, FName("RightLookTimelineAnimation"));
 		BindTimelineComponent(this, RightLookCurve, RightLookTimelineComponent, FName("RightLookHandleProgress"));
 	}
+
+	LastMoveStamp = 0.0f;
 }
 
 void AWIDCharacter::Tick(float DeltaSeconds)
@@ -171,7 +173,6 @@ bool AWIDCharacter::CanReadyToJump() const
 void AWIDCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
-
 
 	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
 	if (WIDMovement)
@@ -278,5 +279,30 @@ void AWIDCharacter::NotifyDied()
 		{
 			WIDAnimInstance->PlayDeathAnimation();
 		}
+	}
+}
+
+void AWIDCharacter::AddMovementInput(FVector WorldDirection, float ScaleValue, bool bForce)
+{
+	Super::AddMovementInput(WorldDirection, ScaleValue, bForce);
+
+	LastMoveStamp = GetWorld()->GetTimeSeconds();
+}
+
+void AWIDCharacter::Sleep()
+{
+	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
+	if (WIDMovement)
+	{
+		WIDMovement->SetMovementState(EWIDMovementState::Sleeping, false);
+	}
+}
+
+void AWIDCharacter::WakeUp()
+{
+	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
+	if (WIDMovement)
+	{
+		WIDMovement->SetMovementState(EWIDMovementState::Idle, false);
 	}
 }

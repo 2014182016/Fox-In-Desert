@@ -31,6 +31,9 @@ public:
 	/** If it is set, override to speed in character movement */
 	UPROPERTY(EditDefaultsOnly)
 		FOptionalFloat Speed = 600.0f;
+	/** State can only be changed on the corresponding state */
+	UPROPERTY(EditDefaultsOnly)
+		EWIDMovementState AllowTargetState = EWIDMovementState::None;
 };
 
 /**
@@ -78,6 +81,9 @@ public:
 	virtual void SaveMovementState(const EWIDMovementState OldMovmenetState);
 	/** Restore old movement state and the mobility changes depneding on the corresponding movement state */
 	virtual void RestoreMovmenetState();
+
+	virtual bool CanSaveMovemenetState(const EWIDMovementState MovmenetState) const;
+	virtual bool CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const;
 
 public:
 	/** Distance from ground when jumping */

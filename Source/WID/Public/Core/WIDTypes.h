@@ -39,6 +39,7 @@ enum class EWIDMovementState : uint8
 	Running,
 	SlowWalking,
 	Jumping,
+	Sleeping,
 };
 
 /** Type to distinguish widgets attached to the hud */

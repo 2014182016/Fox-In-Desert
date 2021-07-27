@@ -31,16 +31,23 @@ void UWIDMovementComponent::SetMovementState(const EWIDMovementState NewMovmenet
 {
 	if (CurrentMovementState == NewMovmenetState)
 		return;
+	
+	const FMovemenetStateInfo* const NewMovementStateInfo = MovementStateInfoMap.Find(NewMovmenetState);
+	if (NewMovementStateInfo == nullptr)
+		return;
+
+	const FMovemenetStateInfo* const CurrentMovementStateInfo = MovementStateInfoMap.Find(CurrentMovementState);
+	if (CurrentMovementStateInfo != nullptr)
+	{
+		if (CurrentMovementStateInfo->AllowTargetState != EWIDMovementState::None && CurrentMovementStateInfo->AllowTargetState != NewMovmenetState)
+			return;
+	}
+
+	NewMovementStateInfo->Set(this);
 
 	if (bSaveMovement)
 	{
 		SaveMovementState(CurrentMovementState);
-	}
-	
-	const FMovemenetStateInfo* const MovementStateInfo = MovementStateInfoMap.Find(NewMovmenetState);
-	if (MovementStateInfo)
-	{
-		MovementStateInfo->Set(this);
 	}
 
 	CurrentMovementState = NewMovmenetState;
@@ -48,8 +55,7 @@ void UWIDMovementComponent::SetMovementState(const EWIDMovementState NewMovmenet
 
 void UWIDMovementComponent::SaveMovementState(const EWIDMovementState OldMovmenetState)
 {
-	// Do not save while jumping
-	if (OldMovmenetState == EWIDMovementState::Jumping || OldMovmenetState == EWIDMovementState::None)
+	if (!CanSaveMovemenetState(OldMovmenetState))
 		return;
 
 	LastMovementState = OldMovmenetState;
@@ -57,8 +63,7 @@ void UWIDMovementComponent::SaveMovementState(const EWIDMovementState OldMovmene
 
 void UWIDMovementComponent::RestoreMovmenetState()
 {
-	// Do not restore while jumping
-	if (IsJumping())
+	if (!CanRestoreMovementState(CurrentMovementState, LastMovementState))
 		return;
 
 	if (LastMovementState == EWIDMovementState::None)
@@ -118,5 +123,15 @@ bool UWIDMovementComponent::CanSlowWalk() const
 
 bool UWIDMovementComponent::CanJump() const
 {
-	return IsWalking() && CurrentMovementState != EWIDMovementState::Jumping;
+	return IsWalking() && CurrentMovementState != EWIDMovementState::Jumping && CurrentMovementState != EWIDMovementState::Sleeping;
+}
+
+bool UWIDMovementComponent::CanSaveMovemenetState(const EWIDMovementState MovmenetState) const
+{
+	return MovmenetState == EWIDMovementState::Jumping || MovmenetState == EWIDMovementState::None;
+}
+
+bool UWIDMovementComponent::CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const
+{
+	return !IsJumping() && CurrentMovmenetState != EWIDMovementState::Sleeping;
 }
