@@ -5,6 +5,7 @@
 #include "Core/WIDCharacter.h"
 #include "Core/WIDHUD.h"
 #include "Core/WIDPlayerState.h"
+#include "Core/WIDGameMode.h"
 
 void AWIDPlayerController::SetupInputComponent()
 {
@@ -32,7 +33,7 @@ void AWIDPlayerController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("LookRight"), IE_Released, this, &AWIDPlayerController::StopLookRight);
 	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode0"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 0);
 	InputComponent->BindAction<FCameraMode>(TEXT("CameraMode1"), IE_Pressed, this, &AWIDPlayerController::ChangeCameraMode, 1);
-	InputComponent->BindAction(TEXT("MainMenu"), IE_Pressed, this, &AWIDPlayerController::ToggleMainMenu);
+	InputComponent->BindAction(TEXT("GameMenu"), IE_Pressed, this, &AWIDPlayerController::ToggleGameMenu);
 	// }} BindAction
 }
 
@@ -189,12 +190,12 @@ void AWIDPlayerController::ChangeCameraMode(const int32 NewMode)
 	}
 }
 
-void AWIDPlayerController::ToggleMainMenu()
+void AWIDPlayerController::ToggleGameMenu()
 {
 	AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
 	if (IsValid(WIDHUD))
 	{
-		WIDHUD->UpdateHudEvent(EHudType::MainMenu, EHudEvent::ToggleVisibility);
+		WIDHUD->UpdateHudEvent(EHudType::GameMenu, EHudEvent::ToggleVisibility);
 
 		if (bShowMouseCursor)
 		{

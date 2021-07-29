@@ -146,13 +146,6 @@ void UWIDAnimInstance::BeginLazyState()
 void UWIDAnimInstance::EndLazyState()
 {
 	SetLazyState(ELazyState::None);
-
-	// Release the sleep state and allow it to move
-	AWIDCharacter* WIDCharacter = Cast<AWIDCharacter>(TryGetPawnOwner());
-	if (IsValid(WIDCharacter))
-	{
-		WIDCharacter->WakeUp();
-	}
 }
 
 void UWIDAnimInstance::ResetLazyState()
@@ -197,6 +190,16 @@ void UWIDAnimInstance::SetLazyState(ELazyState NewState)
 
 	switch (CurrentLazyState)
 	{
+	case ELazyState::None:
+	{
+		// Release the sleep state and allow it to move
+		AWIDCharacter* WIDCharacter = Cast<AWIDCharacter>(TryGetPawnOwner());
+		if (IsValid(WIDCharacter))
+		{
+			WIDCharacter->WakeUp();
+		}
+		break;
+	}
 	case ELazyState::Lie:
 	{
 		// Judging that character hasn't moved for a long time, character goes into sleep

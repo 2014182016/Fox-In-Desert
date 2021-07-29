@@ -50,7 +50,7 @@ public:
 	UFUNCTION(exec) 
 		void ChangeCameraMode(const int32 NewMode);
 	UFUNCTION(exec)
-		void ToggleMainMenu();
+		void ToggleGameMenu();
 	// }} Bind Action Function
 
 	/** Call by player state when character died */

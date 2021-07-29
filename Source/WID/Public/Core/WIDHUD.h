@@ -36,6 +36,10 @@ class WID_API AWIDHUD : public AHUD
 	GENERATED_BODY()
 
 public:
+	// {{ AActor Interface
+	virtual void Destroyed() override;
+	// }} AActor Interface
+
 	/** Create a new widget for this type and attach it to viewport. Only one widget can be attached to that type */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		virtual void AddWidget(const EHudType HudType, const TSubclassOf<UUserWidget>& NewWidgetClass, const ESlateVisibility Visibility);

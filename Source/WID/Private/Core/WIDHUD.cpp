@@ -15,6 +15,21 @@ void AWIDHUD::BeginPlay()
 	}
 }
 
+void AWIDHUD::Destroyed()
+{
+	Super::Destroyed();
+
+	for (auto& CurrentWidgetInfo : CurrentWidgetList)
+	{
+		if (CurrentWidgetInfo.Value)
+		{
+			CurrentWidgetInfo.Value->RemoveFromViewport();
+		}
+	}
+
+	CurrentWidgetList.Empty();
+}
+
 void AWIDHUD::AddWidget(const EHudType HudType, const TSubclassOf<UUserWidget>& NewWidgetClass, const ESlateVisibility Visibility)
 {
 	if (IsValid(PlayerOwner) && NewWidgetClass)

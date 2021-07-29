@@ -128,7 +128,7 @@ bool UWIDMovementComponent::CanJump() const
 
 bool UWIDMovementComponent::CanSaveMovemenetState(const EWIDMovementState MovmenetState) const
 {
-	return MovmenetState == EWIDMovementState::Jumping || MovmenetState == EWIDMovementState::None;
+	return MovmenetState != EWIDMovementState::None && MovmenetState != EWIDMovementState::Jumping && MovmenetState != EWIDMovementState::Sleeping;
 }
 
 bool UWIDMovementComponent::CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const

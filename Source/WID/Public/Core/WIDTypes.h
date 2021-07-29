@@ -48,9 +48,11 @@ enum class EHudType : uint8
 {
 	None			= 0 UMETA(Hidden),
 	MainMenu		= 1 << 0,
-	PlayerState		= 1 << 1,
-	Option			= 1 << 2,
-	Max				= 1 << 3 UMETA(Hidden),
+	GameMenu		= 1 << 1,
+	Loading			= 1 << 2,
+	PlayerState		= 1 << 3,
+	Option			= 1 << 4,
+	Max				= 1 << 5 UMETA(Hidden),
 };
 ENUM_CLASS_FLAGS(EHudType);
 ENUM_CLASS_FLAGS_INT(EHudType);

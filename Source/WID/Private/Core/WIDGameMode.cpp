@@ -22,3 +22,21 @@ void AWIDGameMode::SaveGame()
 		WIDGameInstance->SaveGame();
 	}
 }
+
+void AWIDGameMode::GoToNextLevel(const FName LevelPath, const bool bDoNoUseSeamlessLevel)
+{
+	if (LevelPath.GetStringLength() > 0)
+	{
+		for (FConstPlayerControllerIterator Iterator = GetWorld()->GetPlayerControllerIterator(); Iterator; ++Iterator)
+		{
+			if (Iterator->Get())
+			{
+				Iterator->Get()->ClientTravel(LevelPath.ToString(), ETravelType::TRAVEL_Relative, bDoNoUseSeamlessLevel ? false : bUseSeamlessTravel);
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("NextLevelPath is not set"));
+	}
+}

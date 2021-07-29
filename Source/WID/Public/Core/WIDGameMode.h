@@ -16,8 +16,14 @@ public:
 	UFUNCTION(exec)
 		void SaveGame();
 
+	/** Go to the level in LevelPath. Function defined to use seamless level */
+	UFUNCTION(BlueprintCallable)
+		void GoToNextLevel(const FName LevelPath = NAME_None, const bool bDoNoUseSeamlessLevel = false);
+
 protected:
+	// {{ AActor Interface
 	virtual void BeginPlay() override;
+	// }} AActor Interface
 
 };
 
