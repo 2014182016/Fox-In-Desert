@@ -50,7 +50,9 @@ public:
 	// }} UActorComponent Interface
 
 	// {{ UMovementComponent Interface
+	virtual void PhysWalking(float deltaTime, int32 Iterations) override;
 	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
+	virtual void SetPostLandedPhysics(const FHitResult& Hit) override;
 	// }} UMovementComponent Interface
 
 public:
@@ -78,10 +80,17 @@ public:
 	* @param bSaveMovement - If true, save current movement state to restore later
 	*/
 	virtual void SetMovementState(const EWIDMovementState NewMovmenetState, bool bSaveMovement = true);
-	/** Save old movement state to bring it back later */
-	virtual void SaveMovementState(const EWIDMovementState OldMovmenetState);
 	/** Restore old movement state and the mobility changes depneding on the corresponding movement state */
 	virtual void RestoreMovmenetState();
+	/**
+	* Save the new movement state and apply it as a movement state later as RestoreMovementState.
+	* @param PendingTime - Call the RestoreMovementState after a PendingTime. If value is 0, you must explicitly invoke the RestoreMovementState.
+	*/
+	virtual void PendingMovementState(const EWIDMovementState NewMovmenetState, const float PendingTime = 0.0f);
+
+protected:
+	/** Save old movement state to bring it back later */
+	virtual void SaveMovementState(const EWIDMovementState OldMovmenetState);
 
 	/** Returns true if the character can save this movemenet state */
 	virtual bool CanSaveMovemenetState(const EWIDMovementState MovmenetState) const;
@@ -100,6 +109,14 @@ protected:
 	/** Movement information container in accordance with movement state */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 		TMap<EWIDMovementState, FMovemenetStateInfo> MovementStateInfoMap;
+
+	/** Adjust the speed at which the character rotates according to floor normal */
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+		float StandingRotationInterpSpeed = 4.0f;
+
+	/** The angle with the floor normal must be greater than this value to apply character rotation */
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
+		float CharacterRotationMaxDegree = 30.0f;
 
 private:
 	/** Movement state to restore later */

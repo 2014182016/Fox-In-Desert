@@ -81,7 +81,8 @@ void AWIDPlayerController::MoveForward(const float Value)
 	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
 	if (IsValid(WIDCharacter))
 	{
-		FRotator Rot = bUsePawnControlRotation ? GetControlRotation() : WIDCharacter->GetActorForwardVector().Rotation();
+		// When moving backward, character moves according to the controller
+		FRotator Rot = (bUsePawnControlRotation || Value < 0.0f) ? GetControlRotation() : WIDCharacter->GetActorForwardVector().Rotation();
 		FVector Dir = FRotationMatrix(Rot).GetScaledAxis(EAxis::X);
 
 		WIDCharacter->AddMovementInput(Dir, Value);
@@ -129,10 +130,20 @@ void AWIDPlayerController::LookUp(const float Value)
 
 void AWIDPlayerController::StartJump()
 {
-	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter))
+	AWIDPlayerState* WIdPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIdPlayerState) && !WIdPlayerState->IsExhausted())
 	{
-		WIDCharacter->StartJump();
+		AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
+		if (IsValid(WIDCharacter))
+		{
+			WIDCharacter->StartJump();
+
+			AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
+			if (IsValid(WIDHUD))
+			{
+				WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
+			}
+		}
 	}
 }
 
@@ -147,15 +158,19 @@ void AWIDPlayerController::StopJump()
 
 void AWIDPlayerController::StartRun()
 {
-	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter))
+	AWIDPlayerState* WIdPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIdPlayerState) && !WIdPlayerState->IsExhausted())
 	{
-		WIDCharacter->Run();
-
-		AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
-		if (IsValid(WIDHUD))
+		AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
+		if (IsValid(WIDCharacter))
 		{
-			WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
+			WIDCharacter->Run();
+
+			AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
+			if (IsValid(WIDHUD))
+			{
+				WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
+			}
 		}
 	}
 }

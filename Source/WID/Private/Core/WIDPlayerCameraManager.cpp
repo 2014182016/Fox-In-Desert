@@ -36,9 +36,8 @@ void AWIDPlayerCameraManager::UpdateUIFade(const float Amount)
 {
 	if (GetOwningHUD())
 	{
-		WID::FHudEventInfo HudEventInfo;
-		HudEventInfo = 1.0f - Amount; // Invert fade amount
-		GetOwningHUD()->UpdateHudEventWithValue(EHudType::All, EHudEvent::UpdateFade, HudEventInfo);
+		const float UIFadeAmount = 1.0f - Amount; // Invert fade amount
+		GetOwningHUD()->UpdateHudEventWithValue(EHudType::All, EHudEvent::UpdateFade, UIFadeAmount);
 	}
 }
 

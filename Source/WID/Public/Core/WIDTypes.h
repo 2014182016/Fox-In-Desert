@@ -25,8 +25,14 @@ namespace WID
 	bool CheckEventInfo(const FHudEventInfo& EvnetInfo);
 	bool CheckEventInfo(const FHudEventInfoList& EvnetInfoList, int32 Index);
 
-	/** Distance to inspect the floor */
-	constexpr float CheckFloorDistance = 50.0f;
+	/** Distance to inspect the floor for footstep */
+	constexpr float CheckFootstepDistance = 100.0f;
+	/** Distance to inspect the floor for falling animation */
+	constexpr float CheckFallingDistance = 10000.0f;
+	/** Distance to inspect the floor for character rotation */
+	constexpr float CheckWalkingDistance = 50.0f;
+	/** Distance to raise a certain value when foostep because foot digs into the ground */
+	constexpr float CheckFootstepUpDistance = 50.0f;
 }
 
 /** The state of character movement */
@@ -66,6 +72,7 @@ enum class EHudEvent : uint8
 	WidgetSwitcher,
 	UpdateGameSettings,
 	UpdateFade,
+	UpdateStaminaState,
 };
 
 /** Each camera mode to control */
@@ -83,4 +90,12 @@ enum class EInputMode : uint8
 	GameOnly,
 	UIOnly,
 	GameAndUI,
+};
+
+/** Enumeration the current state of statmina */
+UENUM()
+enum class EStaminaState : uint8
+{
+	Normal,
+	Exhaustion,
 };

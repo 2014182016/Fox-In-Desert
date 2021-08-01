@@ -41,7 +41,11 @@ void UWIDAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	DefaultJumpAnimStartPosition = JumpAnimStartPosition;
+	AWIDCharacter* WIDCharacter = Cast<AWIDCharacter>(TryGetPawnOwner());
+	if (IsValid(WIDCharacter))
+	{
+		JumpAnimStartPosition = WIDCharacter->CanReadyToJump() ? 0.0f : JumpAnimStartPosition;
+	}
 }
 
 void UWIDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
@@ -61,8 +65,6 @@ void UWIDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 
 		CurrentSpeed = WIDCharacter->GetVelocity().Size();
 		CurrentSpeed2D = WIDCharacter->GetVelocity().Size2D();
-
-		JumpAnimStartPosition = WIDCharacter->CanReadyToJump() ? 0.0f : DefaultJumpAnimStartPosition;
 		CurrentLookDegree = WIDCharacter->CurrentLookDegree * LookAnimRate;
 
 		UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(WIDCharacter->GetCharacterMovement());

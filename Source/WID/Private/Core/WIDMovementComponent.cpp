@@ -4,6 +4,7 @@
 #include "Core/WIDMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
+#include "Kismet/KismetMathLibrary.h"
 
 void FMovemenetStateInfo::Set(UWIDMovementComponent* OtherMovement) const
 {
@@ -63,6 +64,9 @@ void UWIDMovementComponent::SaveMovementState(const EWIDMovementState OldMovmene
 
 void UWIDMovementComponent::RestoreMovmenetState()
 {
+	if (CurrentMovementState == LastMovementState)
+		return;
+
 	if (!CanRestoreMovementState(CurrentMovementState, LastMovementState))
 		return;
 
@@ -87,15 +91,50 @@ void UWIDMovementComponent::RestoreMovmenetState()
 	SetMovementState(LastMovementState);
 }
 
-void UWIDMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
+void UWIDMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
 {
-	if (IsValid(CharacterOwner) && IsFalling())
+	Super::PhysWalking(deltaTime, Iterations);
+
+	if (IsValid(CharacterOwner) && CharacterOwner->GetMesh())
 	{
 		FHitResult HitResult(ForceInit);
 
 		FVector CapsuleHalfHeight = FVector(0.0f, 0.0f, CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
 		FVector StartLoc = CharacterOwner->GetActorLocation() - CapsuleHalfHeight;
-		FVector EndLoc = StartLoc + (FVector::DownVector * 10000.0f);
+		FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckWalkingDistance);
+
+		if (CharacterOwner->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+		{
+			// If the angle between the X-axis and normal is less than a certain value, apply character ratotion
+			const float DegreeFromNormal = FMath::RadiansToDegrees(acosf(FVector::DotProduct(FVector::XAxisVector, HitResult.ImpactNormal)));
+			const float DiffDegree = FMath::Abs<float>(DegreeFromNormal - 90.0f);
+			if (DiffDegree < CharacterRotationMaxDegree)
+			{
+				FRotator OldRotation = CharacterOwner->GetMesh()->GetRelativeRotation();
+
+				// Find the rotation angle of normal
+				const float NewYaw = OldRotation.Yaw;
+				const float NewPitch = UKismetMathLibrary::MakeRotFromYZ(CharacterOwner->GetMesh()->GetRightVector(), HitResult.ImpactNormal).Pitch;
+				const float NewRoll = UKismetMathLibrary::MakeRotFromXZ(CharacterOwner->GetMesh()->GetForwardVector(), HitResult.ImpactNormal).Roll;
+				FRotator NewRotation = FRotator(NewPitch, NewYaw, NewRoll);
+
+				// Apply the new rotation interpolated
+				NewRotation = UKismetMathLibrary::RInterpTo(OldRotation, NewRotation, deltaTime, StandingRotationInterpSpeed);
+				CharacterOwner->GetMesh()->SetRelativeRotation(NewRotation);
+			}
+		}
+	}
+}
+
+void UWIDMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
+{
+	if (IsValid(CharacterOwner))
+	{
+		FHitResult HitResult(ForceInit);
+
+		FVector CapsuleHalfHeight = FVector(0.0f, 0.0f, CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
+		FVector StartLoc = CharacterOwner->GetActorLocation() - CapsuleHalfHeight;
+		FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckFallingDistance);
 
 		if (CharacterOwner->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
 		{
@@ -104,6 +143,14 @@ void UWIDMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 	}
 
 	Super::PhysFalling(deltaTime, Iterations);
+}
+
+void UWIDMovementComponent::SetPostLandedPhysics(const FHitResult& Hit)
+{
+	Super::SetPostLandedPhysics(Hit);
+
+	SetMovementState(EWIDMovementState::Idle, false);
+	RestoreMovmenetState();
 }
 
 bool UWIDMovementComponent::CanRun() const
@@ -134,4 +181,15 @@ bool UWIDMovementComponent::CanSaveMovemenetState(const EWIDMovementState Movmen
 bool UWIDMovementComponent::CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const
 {
 	return !IsJumping() && CurrentMovmenetState != EWIDMovementState::Sleeping;
+}
+
+void UWIDMovementComponent::PendingMovementState(const EWIDMovementState NewMovmenetState, const float PendingTime)
+{
+	SaveMovementState(NewMovmenetState);
+
+	if (PendingTime > 0.0f)
+	{
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UWIDMovementComponent::RestoreMovmenetState, PendingTime, false);
+	}
 }

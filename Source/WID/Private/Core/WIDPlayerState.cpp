@@ -37,45 +37,59 @@ void AWIDPlayerState::UpdateStamina(float DeltaSeconds)
 	if (WIDMovement == nullptr)
 		return;
 
-	if (WIDMovement->IsRunning())
+	if (!bIsExhausted)
 	{
-		if (CurrentStamina > 0.0f 
-#if WITH_EDITOR
-			&& !bInfiniteStamina
-#endif // WITH_EDITOR
-			)
+		if (WIDMovement->IsRunning())
 		{
-			CurrentStamina -= StaminaConsumptionPerSecond * DeltaSeconds;
-			if (CurrentStamina <= 0.0f)
+			if (CurrentStamina > 0.0f)
 			{
-				CurrentStamina = 0.0f;
-				RunOutStamina(WIDCharacter);
+				AddStamina(-StaminaConsumptionPerSecond * DeltaSeconds);
 			}
 		}
 	}
-	else if(!WIDMovement->IsJumping())
+	
+	if (!WIDMovement->IsJumping() && !WIDMovement->IsRunning())
 	{
 		if (CurrentStamina < MaxStamina)
 		{
-			CurrentStamina += StaminaRecoveryPerSecond * DeltaSeconds;
-			if (CurrentStamina >= MaxStamina)
-			{
-				CurrentStamina = MaxStamina;
-				FillUpStamina(WIDCharacter);
-			}
+			AddStamina(StaminaRecoveryPerSecond * DeltaSeconds);
 		}
 	}
 }
 
-void AWIDPlayerState::RunOutStamina(AWIDCharacter* WIDCharacter)
+void AWIDPlayerState::RunOutStamina()
 {
+	AWIDCharacter* WIDCharacter = GetPawn<AWIDCharacter>();
 	if (WIDCharacter == nullptr)
 		return;
 
-	WIDCharacter->Walk();
+	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(WIDCharacter->GetMovementComponent());
+	if (WIDMovement == nullptr)
+		return;
+
+	if (WIDMovement->IsJumping())
+	{
+		WIDMovement->PendingMovementState(EWIDMovementState::Idle);
+	}
+	else
+	{
+		WIDCharacter->Walk();
+	}
+
+	bIsExhausted = true;
+
+	AWIDPlayerController* WIDPlayerController = Cast<AWIDPlayerController>(GetOwner());
+	if (IsValid(WIDPlayerController))
+	{
+		AWIDHUD* WIDHUD = WIDPlayerController->GetHUD<AWIDHUD>();
+		if (IsValid(WIDHUD))
+		{
+			WIDHUD->UpdateHudEventWithValue(EHudType::PlayerState, EHudEvent::UpdateStaminaState, static_cast<int32>(EStaminaState::Exhaustion));
+		}
+	}
 }
 
-void AWIDPlayerState::FillUpStamina(AWIDCharacter* WIDCharacter) EmptyFunction
+void AWIDPlayerState::FillUpStamina() EmptyFunction
 
 float AWIDPlayerState::GetStaminaPercent() const
 {
@@ -89,7 +103,30 @@ float AWIDPlayerState::GetHealthPercent() const
 
 void AWIDPlayerState::AddStamina(const float Value)
 {
+#if WITH_EDITOR
+	CurrentStamina = bInfiniteStamina ? 100.0f : FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
+#else
 	CurrentStamina = FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
+#endif // WITH_EDITOR
+
+	if (CurrentStamina <= 0.0f)
+	{
+		CurrentStamina = 0.0f;
+		RunOutStamina();
+	}
+	else if (CurrentStamina >= MaxStamina)
+	{
+		CurrentStamina = MaxStamina;
+		FillUpStamina();
+	}
+	
+	if (bIsExhausted)
+	{
+		if (CurrentStamina >= StaminaRecoverFromExhaustion)
+		{
+			RecoverFromExhaustion();
+		}
+	}
 }
 
 void AWIDPlayerState::AddHealth(const float Value)
@@ -111,6 +148,26 @@ void AWIDPlayerState::AddHealth(const float Value)
 		if (DiedDelegate.IsBound())
 		{
 			DiedDelegate.Broadcast();
+		}
+	}
+}
+
+void AWIDPlayerState::ConsumeJumpingStamina()
+{
+	AddStamina(-JumpingStaminaConsumption);
+}
+
+void AWIDPlayerState::RecoverFromExhaustion()
+{
+	bIsExhausted = false;
+
+	AWIDPlayerController* WIDPlayerController = Cast<AWIDPlayerController>(GetOwner());
+	if (IsValid(WIDPlayerController))
+	{
+		AWIDHUD* WIDHUD = WIDPlayerController->GetHUD<AWIDHUD>();
+		if (IsValid(WIDHUD))
+		{
+			WIDHUD->UpdateHudEventWithValue(EHudType::PlayerState, EHudEvent::UpdateStaminaState, static_cast<int32>(EStaminaState::Normal));
 		}
 	}
 }

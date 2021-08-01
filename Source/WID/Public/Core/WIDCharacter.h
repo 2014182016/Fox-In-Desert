@@ -68,6 +68,9 @@ public:
 	/** Character wakes up and switches to a state where movement is possible */
 	virtual void WakeUp();
 
+	/** Delay enable Jump to avoid appearance of  unnatural jumping animations in consecutive junmps by blending animation */
+	virtual void EnableJump();
+
 protected:
 	// {{ AActor Interface
 	virtual void BeginPlay() override;
@@ -102,6 +105,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 		FOptionalFloat ReadyToJumpTime = 0.2f;
 
+	/** Jump is possible after a certain period of time after landing */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+		float DelayActivateJump = 0.1f;
+
 	/** Timeline play rate in context. X is forward play rate, Y is reverse play rate */
 	UPROPERTY(EditAnywhere, Category = "Timeline", meta = (AllowPrivateAccess = "true"))
 		FVector2D LookPlayRate = FVector2D(1.0f);
@@ -135,6 +142,8 @@ private:
 private:
 	/** It indicates how far the rotation animation should go. X is left value, Y is right value */
 	FVector2D LookAmount;
+	/** Is the character possible to jump */
+	bool bCanJump;
 
 };
 

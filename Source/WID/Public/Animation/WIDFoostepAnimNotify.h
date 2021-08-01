@@ -24,7 +24,10 @@ struct FFoostepInfo
 	GENERATED_USTRUCT_BODY()
 
 public:
-	void PlayEffect(const AActor* const Context, const FVector& Location) const;
+	void PlayAllEffect(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const;
+	void PlayParticle(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const;
+	void PlayDecal(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const;
+	void PlaySound(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const;
 
 public:
 	/** Int type of surface type of corresponding physical material. */
@@ -66,21 +69,20 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 	// }} UAnimNotify Interface
 
-public:
+protected:
 	/** Overwrite footstep info according to the properties currently specified in notify */
 	FFoostepInfo OverwriteFootstepInfo(FFoostepInfo* const InInfo) const;
 
 	/** Use foot position enumeration to return the location of the foot to check floor trace */
 	static FVector GetFootLocation(const USkeletalMeshComponent* const MeshComp, const EFootPosition FootPosition);
+	
+	/** Spawn decals and particles to each foot position as many as the FootPositionList */
+	void SpawnDecalsAndParticlesAtFootPositon(class AWIDCharacter* WIDCharacter, FFoostepInfo* const InInfo) const;
 
 protected:
 	/** Information list to be used in accordance with floor physical material when calling notify */
 	UPROPERTY(EditDefaultsOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
 		TArray<FFoostepInfo> SoundInfoList;
-
-	/** Position of foot to spawn effect */
-	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
-		EFootPosition FootPosition;
 
 	/** Overwrite sound cue to play at footstep */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
@@ -113,4 +115,8 @@ protected:
 	/** Don't spawn particle */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
 		bool bNoPlayParticle = false;
+
+	/** Spawn decal and particle as much as specified foot position */
+	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
+		TArray<EFootPosition> FootPositonList;
 };

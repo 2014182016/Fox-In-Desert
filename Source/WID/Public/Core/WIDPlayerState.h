@@ -25,16 +25,18 @@ public:
 public:
 	FORCEINLINE float GetCurrentStamina() const { return CurrentStamina; }
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
-	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
-	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
+	FORCEINLINE bool IsExhausted() const { return bIsExhausted; }
 
 	/** Return the current state calculated as a value between 0 and 1 */
 	float GetStaminaPercent() const;
 	float GetHealthPercent() const;
 
 	/** Reflects the value by adding it to the current state */
-	void AddStamina(const float Value);
-	void AddHealth(const float Value);
+	virtual void AddStamina(const float Value);
+	virtual void AddHealth(const float Value);
+	
+	/** Stamina consumption at jumping */
+	virtual void ConsumeJumpingStamina();
 	
 public:
 	/** Invoke bound functions when health reches 0 */
@@ -47,18 +49,20 @@ public:
 	// }} AActor Interface
 
 protected:
-	/** Renew the stamina every tick */
+	/** Update the stamina every tick */
 	virtual void UpdateStamina(float DeltaSeconds);
-	/** Call this function when run out of stamina */
-	virtual void RunOutStamina(class AWIDCharacter* WIDCharacter);
+	/** Call this function when the stamina is zero */
+	virtual void RunOutStamina();
 	/** Call this function when the stamina is full */
-	virtual void FillUpStamina(class AWIDCharacter* WIDCharacter);
+	virtual void FillUpStamina();
+	/** Call this function when recover from exhaustion and ready to run */
+	virtual void RecoverFromExhaustion();
 
 public:
 #if WITH_EDITOR
 	/** Stamina not reduced, for debugging */
 	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
-		bool bInfiniteStamina;
+		uint32 bInfiniteStamina : 1;
 #endif // WITH_EDITOR
 
 protected:
@@ -78,6 +82,14 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0, UIMin = 0.0))
 		float StaminaRecoveryPerSecond = 5.0f;
 
+	/** The amount to be consumed by jumping */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0, UIMin = 0.0))
+		float JumpingStaminaConsumption = 10.0f;
+
+	/** The amount to recover from exhaustion */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0, UIMin = 0.0))
+		float StaminaRecoverFromExhaustion = 30.0f;
+
 protected:
 	/** The current amount of stamina by calculation */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
@@ -86,5 +98,9 @@ protected:
 	/** The current amount of health by calculation */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
 		float CurrentHealth;
+
+protected:
+	/** Stamina is exhausted and can't run anymore */
+	uint32 bIsExhausted : 1;
 	
 };

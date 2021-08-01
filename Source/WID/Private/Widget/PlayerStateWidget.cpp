@@ -5,6 +5,16 @@
 #include "Core/WIDPlayerState.h"
 #include "Components/Image.h"
 
+void UPlayerStateWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	// Hide unupdated stamina gauge
+	FLinearColor OldColor = StaminaGauge->ColorAndOpacity;
+	FLinearColor NewColor = FLinearColor(OldColor.R, OldColor.G, OldColor.B, 0.0f);
+	StaminaGauge->SetColorAndOpacity(NewColor);
+}
+
 void UPlayerStateWidget::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
 {
 	Super::NativeTick(MyGeometry, InDeltaTime);
@@ -27,6 +37,13 @@ void UPlayerStateWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHu
 		break;
 	case EHudEvent::UpdateHealth:
 		UpdateHealthGauge();
+		break;
+	case EHudEvent::UpdateStaminaState:
+		if (WID::CheckEventInfo(HudEventInfoList, 0))
+		{
+			EStaminaState NewStaminaState = EStaminaState(HudEventInfoList[0].GetValue<int32>());
+			UpdateStaminaState(NewStaminaState);
+		}
 		break;
 	}
 }
@@ -67,5 +84,18 @@ void UPlayerStateWidget::UpdateHealthGauge()
 		{
 			GaugeMaterialInstance->SetScalarParameterValue(FName("Progress"), HealthProgress);
 		}
+	}
+}
+
+void UPlayerStateWidget::UpdateStaminaState(const EStaminaState NewStaminaState)
+{
+	switch (NewStaminaState)
+	{
+	case EStaminaState::Normal:
+		PlayAnimationReverse(ChangeStaminaStateAnim);
+		break;
+	case EStaminaState::Exhaustion:
+		PlayAnimationForward(ChangeStaminaStateAnim);
+		break;
 	}
 }

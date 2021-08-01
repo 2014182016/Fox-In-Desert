@@ -29,45 +29,66 @@ FVector UWIDFoostepAnimNotify::GetFootLocation(const USkeletalMeshComponent* con
 	case EFootPosition::HindlegRight:
 		BoneName = FName("R-Foot");
 		break;
+	default:
+		BoneName = FName("Root");
+		break;
 	}
 
 	return MeshComp->GetBoneLocation(BoneName);
 }
 
-void FFoostepInfo::PlayEffect(const AActor* const Context, const FVector& Location) const
+void FFoostepInfo::PlayAllEffect(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const
 {
-	if (!Context)
+	if (!WorldContextObject || !Target)
 		return;
 
-	UWorld* World = Context->GetWorld();
-	if (!World)
+	PlayParticle(WorldContextObject, Target, Location);
+	PlayDecal(WorldContextObject, Target, Location);
+	PlaySound(WorldContextObject, Target, Location);
+}
+
+void FFoostepInfo::PlayParticle(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const
+{
+	if (!WorldContextObject || !Target)
 		return;
-
-	if (SoundCue)
-	{
-		UGameplayStatics::PlaySoundAtLocation(World, SoundCue, Location);
-	}
-
-	if (DecalMaterial)
-	{
-		// define decal rotation according to character rotation
-		const FRotator DecalRotation = FRotator(-90.0f, 90.0f + Context->GetActorRotation().Yaw, 0.0f);
-		UGameplayStatics::SpawnDecalAtLocation(World, DecalMaterial, DecalSize, Location, DecalRotation, DecalLifeSpan);
-	}
 
 	if (bUseNiagaraParitlce)
 	{
 		if (NiagaraParticle)
 		{
-			UNiagaraFunctionLibrary::SpawnSystemAtLocation(World, NiagaraParticle, Location);
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(WorldContextObject, NiagaraParticle, Location);
 		}
 	}
 	else
 	{
 		if (Particle)
 		{
-			UGameplayStatics::SpawnEmitterAtLocation(World, Particle, Location);
+			UGameplayStatics::SpawnEmitterAtLocation(WorldContextObject, Particle, Location);
 		}
+	}
+}
+
+void FFoostepInfo::PlayDecal(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const
+{
+	if (!WorldContextObject || !Target)
+		return;
+
+	if (DecalMaterial)
+	{
+		// define decal rotation according to character rotation
+		const FRotator DecalRotation = FRotator(-90.0f, 90.0f + Target->GetActorRotation().Yaw, 0.0f);
+		UGameplayStatics::SpawnDecalAtLocation(WorldContextObject, DecalMaterial, DecalSize, Location, DecalRotation, DecalLifeSpan);
+	}
+}
+
+void FFoostepInfo::PlaySound(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const
+{
+	if (!WorldContextObject || !Target)
+		return;
+
+	if (SoundCue)
+	{
+		UGameplayStatics::PlaySoundAtLocation(WorldContextObject, SoundCue, Location);
 	}
 }
 
@@ -81,8 +102,8 @@ void UWIDFoostepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 		if (IsValid(WIDCharacter))
 		{
 			FHitResult HitResult(ForceInit);
-			FVector StartLoc = GetFootLocation(MeshComp, FootPosition);
-			FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckFloorDistance);
+			FVector StartLoc = WIDCharacter->GetActorLocation();
+			FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckFootstepDistance);
 
 			if (WIDCharacter->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
 			{
@@ -100,7 +121,9 @@ void UWIDFoostepAnimNotify::Notify(USkeletalMeshComponent* MeshComp, UAnimSequen
 				if (ResultInfo)
 				{
 					FFoostepInfo OverwrittenInfo = OverwriteFootstepInfo(ResultInfo);
-					OverwrittenInfo.PlayEffect(WIDCharacter, HitResult.Location);
+
+					OverwrittenInfo.PlaySound(WIDCharacter->GetWorld(), WIDCharacter, HitResult.Location);
+					SpawnDecalsAndParticlesAtFootPositon(WIDCharacter, &OverwrittenInfo);
 				}
 			}
 		}
@@ -160,4 +183,23 @@ FFoostepInfo UWIDFoostepAnimNotify::OverwriteFootstepInfo(FFoostepInfo* const In
 	}
 
 	return NewInfo;
+}
+
+void UWIDFoostepAnimNotify::SpawnDecalsAndParticlesAtFootPositon(class AWIDCharacter* WIDCharacter, FFoostepInfo* const InInfo) const
+{
+	if (!WIDCharacter || !InInfo)
+		return;
+
+	for (const EFootPosition TestFootPositon : FootPositonList)
+	{
+		FHitResult HitResult(ForceInit);
+		FVector StartLoc = GetFootLocation(WIDCharacter->GetMesh(), TestFootPositon) + (WID::CheckFootstepUpDistance * FVector::UpVector);
+		FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckFootstepDistance);
+
+		if (WIDCharacter->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+		{
+			InInfo->PlayDecal(WIDCharacter->GetWorld(), WIDCharacter, HitResult.Location);
+			InInfo->PlayParticle(WIDCharacter->GetWorld(), WIDCharacter, HitResult.Location);
+		}
+	}
 }

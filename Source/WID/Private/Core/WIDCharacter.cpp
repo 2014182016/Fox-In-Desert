@@ -81,6 +81,7 @@ void AWIDCharacter::BeginPlay()
 	}
 
 	LastMoveStamp = 0.0f;
+	bCanJump = true;
 }
 
 void AWIDCharacter::Destroyed()
@@ -160,21 +161,28 @@ void AWIDCharacter::RestoreMovementState()
 
 void AWIDCharacter::StartJump()
 {
-	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
-	if (WIDMovement)
+	AWIDPlayerState* WIDPlayerState = GetPlayerState<AWIDPlayerState>();
+	if (IsValid(WIDPlayerState) && !WIDPlayerState->IsExhausted())
 	{
-		if (WIDMovement->CanJump())
+		UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
+		if (WIDMovement)
 		{
-			WIDMovement->SetMovementState(EWIDMovementState::Jumping);
+			if (WIDMovement->CanJump() && bCanJump)
+			{
+				bCanJump = false;
+				WIDMovement->SetMovementState(EWIDMovementState::Jumping);
 
-			if (CanReadyToJump())
-			{
-				FTimerHandle TimerHandle;
-				GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWIDCharacter::RealJump, ReadyToJumpTime.GetValue(), false);
-			}
-			else
-			{
-				RealJump();
+				if (CanReadyToJump())
+				{
+					FTimerHandle TimerHandle;
+					GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWIDCharacter::RealJump, ReadyToJumpTime.GetValue(), false);
+				}
+				else
+				{
+					RealJump();
+				}
+
+				WIDPlayerState->ConsumeJumpingStamina();
 			}
 		}
 	}
@@ -194,11 +202,14 @@ void AWIDCharacter::Landed(const FHitResult& Hit)
 {
 	Super::Landed(Hit);
 
-	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
-	if (WIDMovement)
+	if (DelayActivateJump > 0.0f)
 	{
-		WIDMovement->SetMovementState(EWIDMovementState::Idle, false);
-		WIDMovement->RestoreMovmenetState();
+		FTimerHandle TimerHandle;
+		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWIDCharacter::EnableJump, DelayActivateJump, false);
+	}
+	else
+	{
+		EnableJump();
 	}
 }
 
@@ -325,4 +336,9 @@ void AWIDCharacter::WakeUp()
 	{
 		WIDMovement->SetMovementState(EWIDMovementState::Idle, false);
 	}
+}
+
+void AWIDCharacter::EnableJump()
+{
+	bCanJump = true;
 }

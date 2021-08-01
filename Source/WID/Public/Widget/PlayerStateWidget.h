@@ -20,6 +20,7 @@ public:
 
 protected:
 	// {{ UUserWidget Interface
+	virtual void NativeConstruct() override;
 	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime) override;
 	// }} UUserWidget Interface
 
@@ -29,6 +30,9 @@ protected:
 
 	/** Update health gauge using player state */
 	void UpdateHealthGauge();
+
+	/** Update the state of stamina so that the player is aware of it */
+	void UpdateStaminaState(const EStaminaState NewStaminaState);
 
 protected:
 	/** Display the playerstate's stamina as a value between 0 and 1 */
@@ -42,6 +46,10 @@ protected:
 	/** Perform an animation that disappears when stamina is 0, and appears when it is 1 */
 	UPROPERTY(Transient, meta = (AllowPrivateAccess = true, BindWidgetAnim))
 		class UWidgetAnimation* StaminaAppearAnim;
+
+	/** An animation indicating the state of stamina */
+	UPROPERTY(Transient, meta = (AllowPrivateAccess = true, BindWidgetAnim))
+		class UWidgetAnimation* ChangeStaminaStateAnim;
 
 private:
 	/** Whether to update stamina gauge or not */

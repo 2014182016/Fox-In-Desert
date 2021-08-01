@@ -163,9 +163,6 @@ protected:
 		int32 LazyAnimIndex;
 
 private:
-	/** Default value of JumpAnimStartPosition */
-	float DefaultJumpAnimStartPosition;
-
 	/** Remaining Time to specify next lazy animation */
 	float NextLazyAnimTime;
 
