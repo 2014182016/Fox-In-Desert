@@ -17,5 +17,12 @@ void UWIDUserWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEve
 	case EHudEvent::ToggleVisibility:
 		SetVisibility(IsVisible() ? ESlateVisibility::Hidden : ESlateVisibility::Visible);
 		break;
+	case EHudEvent::UpdateFade:
+		if (WID::CheckEventInfo(HudEventInfoList, 0))
+		{
+			const float FadeAmount = HudEventInfoList[0].GetValue<float>();
+			SetRenderOpacity(FadeAmount);
+		}
+		break;
 	}
 }

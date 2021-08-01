@@ -66,6 +66,7 @@ public:
 	virtual void Notify(USkeletalMeshComponent* MeshComp, UAnimSequenceBase* Animation) override;
 	// }} UAnimNotify Interface
 
+public:
 	/** Overwrite footstep info according to the properties currently specified in notify */
 	FFoostepInfo OverwriteFootstepInfo(FFoostepInfo* const InInfo) const;
 

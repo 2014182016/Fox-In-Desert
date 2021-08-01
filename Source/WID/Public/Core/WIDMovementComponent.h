@@ -53,6 +53,7 @@ public:
 	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
 	// }} UMovementComponent Interface
 
+public:
 	/** Returns true if the character is in the running movement state */
 	virtual bool IsRunning() const { return CurrentMovementState == EWIDMovementState::Running; }
 	/** Returns true if the character is in the slow walking movement state */
@@ -82,7 +83,9 @@ public:
 	/** Restore old movement state and the mobility changes depneding on the corresponding movement state */
 	virtual void RestoreMovmenetState();
 
+	/** Returns true if the character can save this movemenet state */
 	virtual bool CanSaveMovemenetState(const EWIDMovementState MovmenetState) const;
+	/** Returns true if the character can restore last movemenet state */
 	virtual bool CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const;
 
 public:

@@ -22,8 +22,8 @@ namespace WID
 	using FHudEventInfoList = TArray<FVariant>;
 
 	/** Check that the Hud Event Information is delivered correctly */
-	bool CheckEventInfo(FHudEventInfo EvnetInfo);
-	bool CheckEventInfo(FHudEventInfoList EvnetInfoList, int32 Index);
+	bool CheckEventInfo(const FHudEventInfo& EvnetInfo);
+	bool CheckEventInfo(const FHudEventInfoList& EvnetInfoList, int32 Index);
 
 	/** Distance to inspect the floor */
 	constexpr float CheckFloorDistance = 50.0f;
@@ -43,41 +43,44 @@ enum class EWIDMovementState : uint8
 };
 
 /** Type to distinguish widgets attached to the hud */
-UENUM(BlueprintType, meta = (Bitflags))
+UENUM()
 enum class EHudType : uint8
 {
-	None			= 0 UMETA(Hidden),
-	MainMenu		= 1 << 0,
-	GameMenu		= 1 << 1,
-	Loading			= 1 << 2,
-	PlayerState		= 1 << 3,
-	Option			= 1 << 4,
-	Max				= 1 << 5 UMETA(Hidden),
+	MainMenu,
+	GameMenu,
+	Loading,
+	PlayerState,
+	Option,
+	All,
 };
-ENUM_CLASS_FLAGS(EHudType);
-ENUM_CLASS_FLAGS_INT(EHudType);
-ENUM_RANGE_BY_COUNT(EHudType, EHudType::Max);
 
 /** Type to distinguish events when calling event to the hud */
-UENUM(BlueprintType, meta = (Bitflags))
+UENUM(BlueprintType)
 enum class EHudEvent : uint8
 {
-	None				= 0 UMETA(Hidden),
-	Update				= 1 << 1,
-	Visibility			= 1 << 2,
-	ToggleVisibility	= 1 << 3,
-	UpdateStamina		= 1 << 4,
-	UpdateHealth		= 1 << 5,
-	Max					= 1 << 6 UMETA(Hidden),
+	Update,
+	Visibility,
+	ToggleVisibility,
+	UpdateStamina,
+	UpdateHealth,
+	WidgetSwitcher,
+	UpdateGameSettings,
+	UpdateFade,
 };
-ENUM_CLASS_FLAGS(EHudEvent);
-ENUM_CLASS_FLAGS_INT(EHudEvent);
-ENUM_RANGE_BY_COUNT(EHudEvent, EHudEvent::Max);
 
 /** Each camera mode to control */
-UENUM(BlueprintType)
+UENUM()
 enum class ECameraMode : uint8
 {
 	ControllerIndependent,
 	ControllerDependent,
+};
+
+/** Enumeration defining the input mode of controller */
+UENUM()
+enum class EInputMode : uint8
+{
+	GameOnly,
+	UIOnly,
+	GameAndUI,
 };

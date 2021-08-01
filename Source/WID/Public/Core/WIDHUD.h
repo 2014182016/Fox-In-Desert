@@ -40,6 +40,7 @@ public:
 	virtual void Destroyed() override;
 	// }} AActor Interface
 
+public:
 	/** Create a new widget for this type and attach it to viewport. Only one widget can be attached to that type */
 	UFUNCTION(BlueprintCallable, Category = "Widget")
 		virtual void AddWidget(const EHudType HudType, const TSubclassOf<UUserWidget>& NewWidgetClass, const ESlateVisibility Visibility);
@@ -55,24 +56,6 @@ public:
 	/** Call each event to the widget you want through the hud */
 	UFUNCTION(BlueprintCallable, Category = "HudEvent")
 		void UpdateHudEvent(const EHudType HudType, const EHudEvent HudEvent);
-
-	/** Call event to multiple widgets at once using flags */
-	UFUNCTION(BlueprintCallable, Category = "HudEvent")
-		void UpdateHudEventByTypeFlags(
-			UPARAM(meta = (BitMask, BitmaskEnum = EHudType)) const int32 TypeFlags,
-			const EHudEvent HudEvent);
-
-	/** Call multiple events at once using flags */
-	UFUNCTION(BlueprintCallable, Category = "HudEvent")
-		void UpdateHudEventByEventFlags(
-			const EHudType HudType, 
-			UPARAM(meta = (BitMask, BitmaskEnum = EHudEvent)) const int32 EventFlags);
-
-	/** Call multiple events to multiple widgets at once using flags. Don't use this function if you can */
-	UFUNCTION(BlueprintCallable, Category = "HudEvent")
-		void UpdateHudEventAllFlags(
-			UPARAM(meta = (BitMask, BitmaskEnum = EHudType)) const int32 TypeFlags,
-			UPARAM(meta = (BitMask, BitmaskEnum = EHudEvent)) const int32 EventFlags);
 
 	/** Deliver each event and information to the widget you want through the hud */
 	void UpdateHudEventWithValue(const EHudType HudType, const EHudEvent HudEvent, const WID::FHudEventInfo& HudEventInfo);

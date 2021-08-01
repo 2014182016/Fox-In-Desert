@@ -6,6 +6,10 @@
 #include "Core/WIDHUD.h"
 #include "Core/WIDPlayerState.h"
 #include "Core/WIDGameMode.h"
+#include "Core/WIDGameUserSettings.h"
+#include "Core/WIDPlayerCameraManager.h"
+#include "GameFramework/SpringArmComponent.h"
+#include "GameFramework/PlayerInput.h"
 
 void AWIDPlayerController::SetupInputComponent()
 {
@@ -18,6 +22,7 @@ void AWIDPlayerController::SetupInputComponent()
 	InputComponent->BindAxis(TEXT("MoveRight"), this, &AWIDPlayerController::MoveRight);
 	InputComponent->BindAxis(TEXT("Turn"), this, &AWIDPlayerController::Turn);
 	InputComponent->BindAxis(TEXT("LookUp"), this, &AWIDPlayerController::LookUp);
+	InputComponent->BindAxis(TEXT("CameraZoom"), this, &AWIDPlayerController::CameraZoom);
 	// }} BindAxis
 
 	// {{ BindAction
@@ -37,10 +42,44 @@ void AWIDPlayerController::SetupInputComponent()
 	// }} BindAction
 }
 
+void AWIDPlayerController::BeginPlay()
+{
+	Super::BeginPlay();
+
+	// Reduce artifacts in level move
+	if (StartBlackScreenTime > 0.0f)
+	{
+		AWIDPlayerCameraManager* WIDPlayerCameraManager = Cast<AWIDPlayerCameraManager>(PlayerCameraManager);
+		if (IsValid(WIDPlayerCameraManager))
+		{
+			WIDPlayerCameraManager->StartCameraFadeWithUI(1.0f, 1.0f, StartBlackScreenTime, FLinearColor::Black, true, true);
+
+			FTimerHandle TimerHandle;
+			GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &AWIDPlayerController::StartCameraFade, StartBlackScreenTime, false);
+		}
+	}
+	else
+	{
+		StartCameraFade();
+	}
+
+	// Change InputMode when moving levels
+	SetSimpleInputMode(StartInputMode);
+
+	UWIDGameUserSettings* WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
+	if (WIDGameUserSettings)
+	{
+		WIDGameUserSettings->ApplyGameSettings(this);
+	}
+}
+
 void AWIDPlayerController::MoveForward(const float Value)
 {
+	if (Value == 0.0f)
+		return;
+
 	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter) && Value != 0.0f)
+	if (IsValid(WIDCharacter))
 	{
 		FRotator Rot = bUsePawnControlRotation ? GetControlRotation() : WIDCharacter->GetActorForwardVector().Rotation();
 		FVector Dir = FRotationMatrix(Rot).GetScaledAxis(EAxis::X);
@@ -51,8 +90,11 @@ void AWIDPlayerController::MoveForward(const float Value)
 
 void AWIDPlayerController::MoveRight(const float Value)
 {
+	if (Value == 0.0f)
+		return;
+
 	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter) && Value != 0.0f)
+	if (IsValid(WIDCharacter))
 	{
 		FRotator Rot = bUsePawnControlRotation ? GetControlRotation() : WIDCharacter->GetActorForwardVector().Rotation();
 		FVector Dir = FRotationMatrix(Rot).GetScaledAxis(EAxis::Y);
@@ -63,19 +105,25 @@ void AWIDPlayerController::MoveRight(const float Value)
 
 void AWIDPlayerController::Turn(const float Value)
 {
+	if (Value == 0.0f)
+		return;
+
 	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter) && Value != 0.0f)
+	if (IsValid(WIDCharacter))
 	{
-		WIDCharacter->AddControllerYawInput(Value * MouseSensitivity * GetWorld()->DeltaTimeSeconds);
+		WIDCharacter->AddControllerYawInput(Value * GetWorld()->DeltaTimeSeconds);
 	}
 }
 
 void AWIDPlayerController::LookUp(const float Value)
 {
+	if (Value == 0.0f)
+		return;
+
 	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter) && Value != 0.0f)
+	if (IsValid(WIDCharacter))
 	{
-		WIDCharacter->AddControllerPitchInput(Value * MouseSensitivity * GetWorld()->DeltaTimeSeconds);
+		WIDCharacter->AddControllerPitchInput(Value * GetWorld()->DeltaTimeSeconds);
 	}
 }
 
@@ -199,14 +247,12 @@ void AWIDPlayerController::ToggleGameMenu()
 
 		if (bShowMouseCursor)
 		{
-			SetInputMode(FInputModeGameOnly());
+			SetSimpleInputMode(EInputMode::GameOnly);
 		}
 		else
 		{
-			SetInputMode(FInputModeUIOnly());
+			SetSimpleInputMode(EInputMode::UIOnly);
 		}
-
-		bShowMouseCursor = !bShowMouseCursor;
 	}
 }
 
@@ -242,5 +288,52 @@ void AWIDPlayerController::OnUnPossess()
 	if (IsValid(WIDPlayerState) && WIDPlayerState->DiedDelegate.IsBound())
 	{
 		WIDPlayerState->DiedDelegate.Clear();
+	}
+}
+
+void AWIDPlayerController::CameraZoom(const float Value)
+{
+	AWIDCharacter* WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
+	if (IsValid(WIDCharacter))
+	{
+		USpringArmComponent* CameraBoom = WIDCharacter->GetCameraBoom();
+		if (CameraBoom)
+		{
+			// Mouse Wheel Up : TargetArmLength Shorter, Mouse Wheel Down : TargetArmLength Longer
+			const float NewArmLength = CameraBoom->TargetArmLength - (ZoomSpeed * Value);
+			CameraBoom->TargetArmLength = FMath::Clamp<float>(NewArmLength, ZoomDistance.X, ZoomDistance.Y);
+		}
+	}
+}
+
+void AWIDPlayerController::SetSimpleInputMode(const EInputMode NewInputMode)
+{
+	switch (NewInputMode)
+	{
+	case EInputMode::GameOnly:
+		SetInputMode(FInputModeGameOnly());
+		bShowMouseCursor = false;
+		break;
+	case EInputMode::UIOnly:
+		SetInputMode(FInputModeUIOnly());
+		bShowMouseCursor = true;
+		break;
+	case EInputMode::GameAndUI:
+		SetInputMode(FInputModeGameAndUI());
+		bShowMouseCursor = true;
+		break;
+	}
+}
+
+
+void AWIDPlayerController::StartCameraFade()
+{
+	if (StartFadeScreenTime > 0.0f)
+	{
+		AWIDPlayerCameraManager* WIDPlayerCameraManager = Cast<AWIDPlayerCameraManager>(PlayerCameraManager);
+		if (IsValid(WIDPlayerCameraManager))
+		{
+			WIDPlayerCameraManager->StartCameraFadeWithUI(1.0f, 0.0f, StartFadeScreenTime, FLinearColor::Black, true);
+		}
 	}
 }

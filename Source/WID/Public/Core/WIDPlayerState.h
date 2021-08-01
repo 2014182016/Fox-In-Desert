@@ -22,12 +22,12 @@ public:
 	virtual void Tick(float DeltaSeconds) override;
 	// }} AActor Interface
 
+public:
 	FORCEINLINE float GetCurrentStamina() const { return CurrentStamina; }
 	FORCEINLINE float GetCurrentHealth() const { return CurrentHealth; }
 	FORCEINLINE float GetMaxStamina() const { return MaxStamina; }
 	FORCEINLINE float GetMaxHealth() const { return MaxHealth; }
 
-public:
 	/** Return the current state calculated as a value between 0 and 1 */
 	float GetStaminaPercent() const;
 	float GetHealthPercent() const;
@@ -54,6 +54,13 @@ protected:
 	/** Call this function when the stamina is full */
 	virtual void FillUpStamina(class AWIDCharacter* WIDCharacter);
 
+public:
+#if WITH_EDITOR
+	/** Stamina not reduced, for debugging */
+	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
+		bool bInfiniteStamina;
+#endif // WITH_EDITOR
+
 protected:
 	/** The amount of stamina that can be charged as much as possible */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "State", meta = (AllowPrivateAccess = true, ClampMin = 0.0, UIMin = 0.0))
@@ -79,11 +86,5 @@ protected:
 	/** The current amount of health by calculation */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
 		float CurrentHealth;
-
-#if WITH_EDITOR
-	/** Stamina not reduced, for debugging */
-	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
-		bool bInfiniteStamina;
-#endif // WITH_EDITOR
 	
 };

@@ -2,6 +2,7 @@
 
 
 #include "Core/WIDGameInstance.h"
+#include "../WID.h"
 #include "Core/WIDSaveGame.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -13,7 +14,7 @@ UWIDSaveGame* UWIDGameInstance::SaveGame()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s is nullptr. Failed Save Game"), *SaveSlotName);
+		WID_LOG(Warning, TEXT("%s is nullptr. Failed Save Game"), *SaveSlotName);
 	}
 
 	UGameplayStatics::SaveGameToSlot(WIDSaveGame, SaveSlotName, 0);
@@ -29,7 +30,7 @@ UWIDSaveGame* UWIDGameInstance::LoadGame()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s is nullptr. Failed Load Game"), *SaveSlotName);
+		WID_LOG(Warning, TEXT("%s does not exist. Failed Load Game"), *SaveSlotName);
 	}
 
 	return WIDSaveGame;

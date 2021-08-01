@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Widget/WIDUserWidget.h"
-#include "MainMenuWidget.generated.h"
+#include "GameMenuWidget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class WID_API UMainMenuWidget : public UWIDUserWidget
+class WID_API UGameMenuWidget : public UWIDUserWidget
 {
 	GENERATED_BODY()
 
@@ -25,37 +25,30 @@ protected:
 	// }} UUserWidget Interface
 
 protected:
-	/** Called when new game button is clicked */
+	/** Called when return to game button is clicked */
 	UFUNCTION()
-		void OnClickNewGameButton();
-	/** Called when continue game button is clicked */
-	UFUNCTION()
-		void OnClickContinueGameButton();
+		void OnClickReturnToGameButton();
 	/** Called when option button is clicked */
 	UFUNCTION()
 		void OnClickOptionButton();
 	/** Called when exit button is clicked */
 	UFUNCTION()
 		void OnClickExitButton();
-		
+	
 protected:
 	/** Widget that allow you to change to other widgets */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
 		class UWidgetSwitcher* MenuWidgetSwitcher;
 
-	/** Button to ignore existing saves and start a new game */
+	/** Button to hidden this widget and return to game */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
-		class UButton* NewGameButton;
-
-	/** Button to call up existing saves and allow the game to continue */
-	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
-		class UButton* ContinueGameButton;
+		class UButton* ReturnToGameButton;
 
 	/** Button to change option widget */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
 		class UButton* OptionButton;
 
-	/** Button to exit the game */
+	/** Button to return to main menu */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
 		class UButton* ExitButton;
 };

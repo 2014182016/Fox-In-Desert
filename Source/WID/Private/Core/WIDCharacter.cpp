@@ -4,6 +4,7 @@
 #include "Core/WIDMovementComponent.h"
 #include "Core/WIDPlayerController.h"
 #include "Core/WIDPlayerState.h"
+#include "Core/WIDGameUserSettings.h"
 #include "Animation/WIDAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -72,7 +73,26 @@ void AWIDCharacter::BeginPlay()
 		BindTimelineComponent(this, RightLookCurve, RightLookTimelineComponent, FName("RightLookHandleProgress"));
 	}
 
+	// Apply stored TargetArmLength
+	UWIDGameUserSettings* WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
+	if (WIDGameUserSettings && CameraBoom)
+	{
+		CameraBoom->TargetArmLength = WIDGameUserSettings->ZoomDistance;
+	}
+
 	LastMoveStamp = 0.0f;
+}
+
+void AWIDCharacter::Destroyed()
+{
+	Super::Destroyed();
+
+	// Save last TargetArmLength
+	UWIDGameUserSettings* WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
+	if (WIDGameUserSettings && CameraBoom)
+	{
+		WIDGameUserSettings->ZoomDistance = CameraBoom->TargetArmLength;
+	}
 }
 
 void AWIDCharacter::Tick(float DeltaSeconds)
@@ -208,7 +228,7 @@ void AWIDCharacter::StartLookLeft()
 }
 
 void AWIDCharacter::StopLookLeft()
-{
+{	
 	if (LeftLookTimelineComponent)
 	{
 		float NewPlayRate = LookPlayRate.Y;

@@ -17,6 +17,7 @@ public:
 	AWIDCharacter(const FObjectInitializer& ObjectInitializer);
 
 	// {{ AActor Interface
+	virtual void Destroyed() override;
 	virtual void Tick(float DeltaSeconds) override;
 	virtual float TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser) override;
 	// }} AActor Interface
@@ -29,10 +30,10 @@ public:
 	virtual void Landed(const FHitResult& Hit) override;
 	// }} ACharacter Interface
 
+public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 
-public:
 	/** Characater turns into a running movement state */
 	virtual void Run();
 	/** Characater turns into a walking movement state */
@@ -62,7 +63,9 @@ public:
 
 	FORCEINLINE bool IsDied() const { return bDied; }
 
+	/** Character goes to sleep and switches to a state where movement is impossible */
 	virtual void Sleep();
+	/** Character wakes up and switches to a state where movement is possible */
 	virtual void WakeUp();
 
 protected:
