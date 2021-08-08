@@ -111,7 +111,8 @@ void UWIDGameUserSettings::ApplyGameSettings(APlayerController* LocalPlayerContr
 	UGameplayStatics::PushSoundMixModifier(LocalPlayerController->GetWorld(), MasterSoundMix);
 }
 
-void UWIDGameUserSettings::RestoreToDefault(APlayerController* LocalPlayerController)
+#if WITH_EDITOR
+void UWIDGameUserSettings::RestoreForEditor(APlayerController* LocalPlayerController)
 {
 	if (!LocalPlayerController)
 		return;
@@ -121,8 +122,9 @@ void UWIDGameUserSettings::RestoreToDefault(APlayerController* LocalPlayerContro
 		return;
 
 	SetGamma(LocalPlayerController, 2.2f);
-	ScalabilityQuality.SetDefaults();
+	SetOverallScalabilityLevel(1);
 }
+#endif // WITH_EDITOR
 
 void UWIDGameUserSettings::SetMouseSensitivityInRange(float Value)
 {

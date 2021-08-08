@@ -58,14 +58,17 @@ void UGraphicOptionWidget::OnCheckStateChangedVSyncCheckBox(const bool Value)
 
 void UGraphicOptionWidget::OnIndexChangedGraphicQualityOptionButton(const int32 Index)
 {
-	WIDGameUserSettings->GraphicQuality = Index;
+	// Applies to the rest of option settings only when the graphic option is changed
+	if (WIDGameUserSettings->GraphicQuality != Index)
+	{
+		AAOptionButton->SetIndex(Index);
+		PPOptionButton->SetIndex(Index);
+		ShadowQualityOptionButton->SetIndex(Index);
+		TextureQualityOptionButton->SetIndex(Index);
+		EffectQualityOptionButton->SetIndex(Index);
+	}
 
-	// Set overall graphic quality
-	OnIndexChangedAAOptionButton(Index);
-	OnIndexChangedPPOptionButton(Index);
-	OnIndexChangedShadowQualityOptionButton(Index);
-	OnIndexChangedTextureQualityOptionButton(Index);
-	OnIndexChangedEffectQualityOptionButton(Index);
+	WIDGameUserSettings->GraphicQuality = Index;
 }
 
 void UGraphicOptionWidget::OnIndexChangedAAOptionButton(const int32 Index)

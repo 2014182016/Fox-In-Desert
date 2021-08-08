@@ -12,8 +12,6 @@ void UOptionWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	OptionWidgetSwitcher->SetActiveWidgetIndex(0);
-
 	ApplyButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickApplyButton);
 	ResetToDefaultButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickResetToDefaultButton);
 	ReturnButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickReturnButton);
@@ -24,6 +22,9 @@ void UOptionWidget::NativeConstruct()
 
 	WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
 	verifyf(WIDGameUserSettings != nullptr, TEXT("Does not exist Game User Settings"));
+
+	OptionWidgetSwitcher->SetActiveWidgetIndex(0);
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::OnClickApplyButton()

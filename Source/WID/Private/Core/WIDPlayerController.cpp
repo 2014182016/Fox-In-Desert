@@ -78,11 +78,13 @@ void AWIDPlayerController::Destroyed()
 {
 	Super::Destroyed();
 
+#if WITH_EDITOR
 	UWIDGameUserSettings* WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
 	if (WIDGameUserSettings)
 	{
-		WIDGameUserSettings->RestoreToDefault(this);
+		WIDGameUserSettings->RestoreForEditor(this);
 	}
+#endif // WITH_EDITOR
 }
 
 void AWIDPlayerController::MoveForward(const float Value)

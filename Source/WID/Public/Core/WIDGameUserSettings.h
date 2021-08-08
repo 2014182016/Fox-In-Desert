@@ -28,9 +28,10 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Settings")
 		virtual void ApplyGameSettings(class APlayerController* LocalPlayerController);
 
-	/** Set gamma to control the brightness of the screen */
-	UFUNCTION(BlueprintCallable, Category = "Settings")
-		virtual void RestoreToDefault(class APlayerController* LocalPlayerController);
+#if WITH_EDITOR
+	/** At the end of the PIE, restore the basic setting of the engine */
+	virtual void RestoreForEditor(class APlayerController* LocalPlayerController);
+#endif // WITH_EDITOR
 
 	/** Set gamma to control the brightness of the screen */
 	void SetGamma(class APlayerController* LocalPlayerController, const float Value);
