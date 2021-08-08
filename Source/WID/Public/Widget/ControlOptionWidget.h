@@ -27,10 +27,31 @@ protected:
 	/** Called when mouse sensitivity slider is changed */
 	UFUNCTION()
 		void OnValueChangedMouseSensitivitySlider(const float Value);
+	/** Called when invert mouse X axis checkbox state is changed */
+	UFUNCTION()
+		void OnCheckStateChangedInvertMouseXAxisCheckBox(const bool Value);
+	/** Called when invert mouse Y axis checkbox state is changed */
+	UFUNCTION()
+		void OnCheckStateChangedInvertMouseYAxisCheckBox(const bool Value);
+	/** Called when toggle sprint checkbox state is changed */
+	UFUNCTION()
+		void OnCheckStateChangedToggleSprintCheckBox(const bool Value);
 
 protected:
 	/** Adjust the mouse sensitivity setting using this slider */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
 		class USlider* MouseSensitivitySlider;
+
+	/** Adjust the invert mouse X axis setting using this check box */
+	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
+		class UCheckBox* InvertMouseXAxisCheckBox;
+
+	/** Adjust the invert mouse Y axis setting using this check box */
+	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
+		class UCheckBox* InvertMouseYAxisCheckBox;
+
+	/** Adjust the toggle sprint setting using this check box */
+	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
+		class UCheckBox* ToggleSprintCheckBox;
 
 };

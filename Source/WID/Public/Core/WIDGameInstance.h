@@ -23,6 +23,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 		class UWIDSaveGame* LoadGame();
 
+
 private:
 	/** Slot name to save, only one slot exists */
 	UPROPERTY(EditDefaultsOnly, Category = "SaveData", meta = (AllowPrivateAccess = true))

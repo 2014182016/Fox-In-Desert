@@ -7,12 +7,12 @@
 
 void UWIDCheatManager::InfiniteStamina()
 {
+#if WITH_EDITOR
 	AWIDPlayerState* WIDPlayerState = GetOuterAPlayerController()->GetPlayerState<AWIDPlayerState>();
 	if (IsValid(WIDPlayerState))
 	{
-#if	WITH_EDITOR
 		WIDPlayerState->bInfiniteStamina = !WIDPlayerState->bInfiniteStamina;
 		WID_LOG(Display, TEXT("Set InfiniteStamina : %s"), WIDPlayerState->bInfiniteStamina ? TEXT("true") : TEXT("false"));
-#endif // WITH_EDITOR
 	}
+#endif
 }

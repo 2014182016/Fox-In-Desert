@@ -20,6 +20,10 @@ public:
 	DECLARE_DELEGATE_OneParam(FSensitivityType, float);
 
 public:
+	// {{ AActor Interface
+	virtual void Destroyed() override;
+	// }} AActor Interface
+
 	// {{ AController interface
 	virtual void OnPossess(APawn* aPawn) override;
 	virtual void OnUnPossess() override;
@@ -71,7 +75,12 @@ protected:
 		void ChangeCameraMode(const int32 NewMode);
 	// }} Bind Action Function
 
+	/** Fade the rendering screen and UI at the same time */
 	void StartCameraFade();
+
+public:
+	/** Whether to toggle the sprint mode */
+	uint8 bToggleSprint : 1;
 
 protected:
 	/** If true, Pawn looks in the direction the controller sees. If not, Pawn rotates according to the inputs */
@@ -97,5 +106,9 @@ protected:
 	/** Input mode to specify when spawn controller */
 	UPROPERTY(EditDefaultsOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		float StartFadeScreenTime;
+
+private:
+	/** Is this in sprint mode? */
+	uint8 bIsSprint : 1;
 
 };

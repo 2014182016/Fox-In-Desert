@@ -22,9 +22,13 @@ public:
 protected:
 	// {{ UUserWidget Interface
 	virtual void NativeConstruct() override;
+	virtual FReply NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent) override;
 	// }} UUserWidget Interface
 
 protected:
+	/** To exit the UI by pressing the ESC key button */
+	void OnVisibilityChanged(ESlateVisibility ChangedVisibility);
+
 	/** Called when return to game button is clicked */
 	UFUNCTION()
 		void OnClickReturnToGameButton();

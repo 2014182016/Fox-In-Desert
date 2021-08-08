@@ -101,6 +101,9 @@ public:
 	/** Distance from ground when jumping */
 	float DistanceToFloorWhileFalling;
 
+	/** Tilt according to the normal direction of the floor */
+	uint8 bTiltBody : 1;
+
 protected:
 	/** Current movement State applied to character movement */
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = "true"))

@@ -23,6 +23,20 @@ void UMainMenuWidget::NativeConstruct()
 	ExitButton->OnClicked.AddDynamic(this, &UMainMenuWidget::OnClickExitButton);
 }
 
+FReply UMainMenuWidget::NativeOnKeyDown(const FGeometry& InGeometry, const FKeyEvent& InKeyEvent)
+{
+	if (InKeyEvent.GetKey().IsValid() && InKeyEvent.GetKey() == EKeys::Escape)
+	{
+		// OptionWidget Activated
+		if (MenuWidgetSwitcher->GetActiveWidgetIndex() == 1)
+		{
+			MenuWidgetSwitcher->SetActiveWidgetIndex(0);
+		}
+	}
+
+	return Super::NativeOnKeyDown(InGeometry, InKeyEvent);
+}
+
 void UMainMenuWidget::UpdateHudEvent(const EHudEvent HudEvent, const WID::FHudEventInfoList& HudEventInfoList)
 {
 	Super::UpdateHudEvent(HudEvent, HudEventInfoList);

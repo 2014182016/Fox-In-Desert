@@ -106,15 +106,15 @@ protected:
 
 	/** Don't play sound */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
-		bool bNoPlaySound = false;
+		uint8 bNoPlaySound : 1;
 
 	/** Don't spawn decal */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
-		bool bNoPlayDecal = false;
+		uint8 bNoPlayDecal : 1;
 
 	/** Don't spawn particle */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))
-		bool bNoPlayParticle = false;
+		uint8 bNoPlayParticle : 1;
 
 	/** Spawn decal and particle as much as specified foot position */
 	UPROPERTY(EditInstanceOnly, Category = "Footstep", meta = (AllowPrivateAccess = "true"))

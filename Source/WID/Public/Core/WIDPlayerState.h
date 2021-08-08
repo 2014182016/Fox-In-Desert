@@ -59,11 +59,11 @@ protected:
 	virtual void RecoverFromExhaustion();
 
 public:
-#if WITH_EDITOR
+#if WITH_EDITORONLY_DATA
 	/** Stamina not reduced, for debugging */
 	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
-		uint32 bInfiniteStamina : 1;
-#endif // WITH_EDITOR
+		uint8 bInfiniteStamina : 1;
+#endif // WITH_EDITORONLY_DATA
 
 protected:
 	/** The amount of stamina that can be charged as much as possible */
@@ -101,6 +101,6 @@ protected:
 
 protected:
 	/** Stamina is exhausted and can't run anymore */
-	uint32 bIsExhausted : 1;
+	uint8 bIsExhausted : 1;
 	
 };

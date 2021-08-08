@@ -116,15 +116,15 @@ protected:
 protected:
 	/** Is the character floating in the air? */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = true))
-		uint32 bIsInAir : 1;
+		uint8 bIsInAir : 1;
 
 	/** Is the character walking slowly? */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = true))
-		uint32 bIsSlowWalking : 1;
+		uint8 bIsSlowWalking : 1;
 
 	/** Is the character jumping? */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = true))
-		uint32 bIsJumping : 1;
+		uint8 bIsJumping : 1;
 
 	/** The current speed at which the character moves */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Movement", meta = (AllowPrivateAccess = true))
@@ -148,7 +148,7 @@ protected:
 
 	/** On death, another state machine will be activated */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
-		uint32 bDied : 1;
+		uint8 bDied : 1;
 
 	/** Index of death animation to play is specified randomly when died */
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))

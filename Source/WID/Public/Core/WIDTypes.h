@@ -26,13 +26,79 @@ namespace WID
 	bool CheckEventInfo(const FHudEventInfoList& EvnetInfoList, int32 Index);
 
 	/** Distance to inspect the floor for footstep */
-	constexpr float CheckFootstepDistance = 100.0f;
+	static constexpr float CheckFootstepDistance = 100.0f;
 	/** Distance to inspect the floor for falling animation */
-	constexpr float CheckFallingDistance = 10000.0f;
+	static constexpr float CheckFallingDistance = 10000.0f;
 	/** Distance to inspect the floor for character rotation */
-	constexpr float CheckWalkingDistance = 50.0f;
+	static constexpr float CheckWalkingDistance = 50.0f;
 	/** Distance to raise a certain value when foostep because foot digs into the ground */
-	constexpr float CheckFootstepUpDistance = 50.0f;
+	static constexpr float CheckFootstepUpDistance = 50.0f;
+
+	/** I want to order EWindowMode decalred by Epic throught this function */
+	static inline EWindowMode::Type ConvertIntToWindowMode(int32 InIndex)
+	{
+		switch (InIndex)
+		{
+		case 0: return EWindowMode::Windowed;
+		case 1: return EWindowMode::WindowedFullscreen;
+		case 2: return EWindowMode::Fullscreen;
+		}
+		return EWindowMode::Fullscreen;
+	}
+
+	/** Designate the Resolution i want */
+	namespace EResolution
+	{
+		enum Type
+		{
+			_1280x720,
+			_1360x768,
+			_1600x900,
+			_1920x1080,
+		};
+
+		static inline Type ConvertIntToType(int32 InIndex)
+		{
+			switch (InIndex)
+			{
+			case 0: return _1280x720;
+			case 1: return _1360x768;
+			case 2: return _1600x900;
+			case 3: return _1920x1080;
+			}
+			return _1280x720;
+		}
+
+		static inline FIntPoint ConvertIntToPoint(int32 InIndex)
+		{
+			switch (InIndex)
+			{
+			case 0: return FIntPoint(1280, 720);
+			case 1: return FIntPoint(1360, 768);
+			case 2: return FIntPoint(1600, 900);
+			case 3: return FIntPoint(1920, 1080);
+			}
+			return FIntPoint(1280, 720);
+		}
+	}
+
+	/** Designate the Lauguage i want */
+	namespace ELanguage
+	{
+		enum Type
+		{
+			English,
+		};
+
+		static inline Type ConvertIntToType(int32 InIndex)
+		{
+			switch (InIndex)
+			{
+			case 0: return English;
+			}
+			return English;
+		}
+	}
 }
 
 /** The state of character movement */

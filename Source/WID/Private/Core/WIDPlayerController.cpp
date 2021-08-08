@@ -10,6 +10,7 @@
 #include "Core/WIDPlayerCameraManager.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/PlayerInput.h"
+#include "Blueprint/UserWidget.h"
 
 void AWIDPlayerController::SetupInputComponent()
 {
@@ -70,6 +71,17 @@ void AWIDPlayerController::BeginPlay()
 	if (WIDGameUserSettings)
 	{
 		WIDGameUserSettings->ApplyGameSettings(this);
+	}
+}
+
+void AWIDPlayerController::Destroyed()
+{
+	Super::Destroyed();
+
+	UWIDGameUserSettings* WIDGameUserSettings = Cast<UWIDGameUserSettings>(GEngine->GetGameUserSettings());
+	if (WIDGameUserSettings)
+	{
+		WIDGameUserSettings->RestoreToDefault(this);
 	}
 }
 
@@ -158,18 +170,23 @@ void AWIDPlayerController::StopJump()
 
 void AWIDPlayerController::StartRun()
 {
-	AWIDPlayerState* WIdPlayerState = GetPlayerState<AWIDPlayerState>();
-	if (IsValid(WIdPlayerState) && !WIdPlayerState->IsExhausted())
-	{
-		AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-		if (IsValid(WIDCharacter))
-		{
-			WIDCharacter->Run();
+	bIsSprint = bToggleSprint ? !bIsSprint : true;
 
-			AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
-			if (IsValid(WIDHUD))
+	if (bIsSprint)
+	{
+		AWIDPlayerState* WIdPlayerState = GetPlayerState<AWIDPlayerState>();
+		if (IsValid(WIdPlayerState) && !WIdPlayerState->IsExhausted())
+		{
+			AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
+			if (IsValid(WIDCharacter))
 			{
-				WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
+				WIDCharacter->Run();
+
+				AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
+				if (IsValid(WIDHUD))
+				{
+					WIDHUD->UpdateHudEvent(EHudType::PlayerState, EHudEvent::UpdateStamina);
+				}
 			}
 		}
 	}
@@ -177,10 +194,15 @@ void AWIDPlayerController::StartRun()
 
 void AWIDPlayerController::StopRun()
 {
-	AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
-	if (IsValid(WIDCharacter))
+	bIsSprint = bToggleSprint ? bIsSprint : false;
+
+	if (!bIsSprint)
 	{
-		WIDCharacter->RestoreMovementState();
+		AWIDCharacter* const WIDCharacter = Cast<AWIDCharacter>(GetCharacter());
+		if (IsValid(WIDCharacter))
+		{
+			WIDCharacter->RestoreMovementState();
+		}
 	}
 }
 
@@ -258,15 +280,19 @@ void AWIDPlayerController::ToggleGameMenu()
 	AWIDHUD* WIDHUD = Cast<AWIDHUD>(GetHUD());
 	if (IsValid(WIDHUD))
 	{
-		WIDHUD->UpdateHudEvent(EHudType::GameMenu, EHudEvent::ToggleVisibility);
-
-		if (bShowMouseCursor)
+		UUserWidget* GameMenuWidget = WIDHUD->FindWidget(EHudType::GameMenu);
+		if (GameMenuWidget)
 		{
-			SetSimpleInputMode(EInputMode::GameOnly);
-		}
-		else
-		{
-			SetSimpleInputMode(EInputMode::UIOnly);
+			if(GameMenuWidget->IsVisible())
+			{
+				WIDHUD->UpdateHudEventWithValue(EHudType::GameMenu, EHudEvent::Visibility, static_cast<int32>(ESlateVisibility::Hidden));
+				SetSimpleInputMode(EInputMode::GameOnly);
+			}
+			else
+			{
+				WIDHUD->UpdateHudEventWithValue(EHudType::GameMenu, EHudEvent::Visibility, static_cast<int32>(ESlateVisibility::Visible));
+				SetSimpleInputMode(EInputMode::UIOnly);
+			}
 		}
 	}
 }
@@ -339,7 +365,6 @@ void AWIDPlayerController::SetSimpleInputMode(const EInputMode NewInputMode)
 		break;
 	}
 }
-
 
 void AWIDPlayerController::StartCameraFade()
 {

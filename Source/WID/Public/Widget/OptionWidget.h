@@ -22,14 +22,16 @@ protected:
 public:
 	/** The current option settings is reflected in each detail option widget */
 	void UpdateOptionSettings();
+	/** Reflects option settings on the currently active widget */
+	void UpdateActiveOptionSetting();
 
 protected:
 	/** Called when apply button is clicked */
 	UFUNCTION()
 		void OnClickApplyButton();
-	/** Called when set to default button is clicked */
+	/** Called when reset to default button is clicked */
 	UFUNCTION()
-		void OnClickSetToDefaultButton();
+		void OnClickResetToDefaultButton();
 	/** Called when return button is clicked */
 	UFUNCTION()
 		void OnClickReturnButton();
@@ -57,7 +59,7 @@ protected:
 
 	/** Button to return option settings to default value */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))
-		class UButton* SetToDefaultButton;
+		class UButton* ResetToDefaultButton;
 
 	/** Button to return to main menu */
 	UPROPERTY(BlueprintReadOnly, Category = "Widget", meta = (AllowPrivateAccess = true, BindWidget))

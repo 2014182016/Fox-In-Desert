@@ -15,7 +15,7 @@ void UOptionWidget::NativeConstruct()
 	OptionWidgetSwitcher->SetActiveWidgetIndex(0);
 
 	ApplyButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickApplyButton);
-	SetToDefaultButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickSetToDefaultButton);
+	ResetToDefaultButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickResetToDefaultButton);
 	ReturnButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickReturnButton);
 	GameplayOptionButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickGameplayOptionButton);
 	ControlOptionButton->OnClicked.AddDynamic(this, &UOptionWidget::OnClickControlOptionButton);
@@ -30,13 +30,13 @@ void UOptionWidget::OnClickApplyButton()
 {
 	WIDGameUserSettings->ApplyGameSettings(GetOwningPlayer());
 	WIDGameUserSettings->ApplySettings(false); // Apply settings and save data to ini config
-	UpdateOptionSettings();
+	UpdateActiveOptionSetting();
 }
 
-void UOptionWidget::OnClickSetToDefaultButton()
+void UOptionWidget::OnClickResetToDefaultButton()
 {
 	WIDGameUserSettings->SetToDefaults();
-	UpdateOptionSettings();
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::OnClickReturnButton()
@@ -53,22 +53,26 @@ void UOptionWidget::OnClickReturnButton()
 
 void UOptionWidget::OnClickGameplayOptionButton()
 {
-	OptionWidgetSwitcher->SetActiveWidgetIndex(0);
+	OptionWidgetSwitcher->SetActiveWidgetIndex(3);
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::OnClickControlOptionButton()
 {
 	OptionWidgetSwitcher->SetActiveWidgetIndex(1);
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::OnClickGraphicOptionButton()
 {
-	OptionWidgetSwitcher->SetActiveWidgetIndex(2);
+	OptionWidgetSwitcher->SetActiveWidgetIndex(0);
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::OnClickSoundOptionButton()
 {
-	OptionWidgetSwitcher->SetActiveWidgetIndex(3);
+	OptionWidgetSwitcher->SetActiveWidgetIndex(2);
+	UpdateActiveOptionSetting();
 }
 
 void UOptionWidget::UpdateOptionSettings()
@@ -80,5 +84,14 @@ void UOptionWidget::UpdateOptionSettings()
 		{
 			ChildDetailWidget->UpdateGameSettings();
 		}
+	}
+}
+
+void UOptionWidget::UpdateActiveOptionSetting()
+{
+	UOptionDetailWidget* ChildDetailWidget = Cast<UOptionDetailWidget>(OptionWidgetSwitcher->GetActiveWidget());
+	if (ChildDetailWidget)
+	{
+		ChildDetailWidget->UpdateGameSettings();
 	}
 }
