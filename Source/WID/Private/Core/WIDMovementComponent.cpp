@@ -4,7 +4,6 @@
 #include "Core/WIDMovementComponent.h"
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
-#include "Kismet/KismetMathLibrary.h"
 
 void FMovemenetStateInfo::Set(UWIDMovementComponent* OtherMovement) const
 {
@@ -91,44 +90,6 @@ void UWIDMovementComponent::RestoreMovmenetState()
 	SetMovementState(LastMovementState);
 }
 
-void UWIDMovementComponent::PhysWalking(float deltaTime, int32 Iterations)
-{
-	Super::PhysWalking(deltaTime, Iterations);
-
-	if (bTiltBody)
-	{
-		if (IsValid(CharacterOwner) && CharacterOwner->GetMesh())
-		{
-			FHitResult HitResult(ForceInit);
-
-			FVector CapsuleHalfHeight = FVector(0.0f, 0.0f, CharacterOwner->GetCapsuleComponent()->GetScaledCapsuleHalfHeight());
-			FVector StartLoc = CharacterOwner->GetActorLocation() - CapsuleHalfHeight;
-			FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckWalkingDistance);
-
-			if (CharacterOwner->GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
-			{
-				// If the angle between the X-axis and normal is less than a certain value, apply character ratotion
-				const float DegreeFromNormal = FMath::RadiansToDegrees(acosf(FVector::DotProduct(FVector::XAxisVector, HitResult.ImpactNormal)));
-				const float DiffDegree = FMath::Abs<float>(DegreeFromNormal - 90.0f);
-				if (DiffDegree < CharacterRotationMaxDegree)
-				{
-					FRotator OldRotation = CharacterOwner->GetMesh()->GetRelativeRotation();
-
-					// Find the rotation angle of normal
-					const float NewYaw = OldRotation.Yaw;
-					const float NewPitch = UKismetMathLibrary::MakeRotFromYZ(CharacterOwner->GetMesh()->GetRightVector(), HitResult.ImpactNormal).Pitch;
-					const float NewRoll = UKismetMathLibrary::MakeRotFromXZ(CharacterOwner->GetMesh()->GetForwardVector(), HitResult.ImpactNormal).Roll;
-					FRotator NewRotation = FRotator(NewPitch, NewYaw, NewRoll);
-
-					// Apply the new rotation interpolated
-					NewRotation = UKismetMathLibrary::RInterpTo(OldRotation, NewRotation, deltaTime, StandingRotationInterpSpeed);
-					CharacterOwner->GetMesh()->SetRelativeRotation(NewRotation);
-				}
-			}
-		}
-	}
-}
-
 void UWIDMovementComponent::PhysFalling(float deltaTime, int32 Iterations)
 {
 	if (IsValid(CharacterOwner))
@@ -195,4 +156,14 @@ void UWIDMovementComponent::PendingMovementState(const EWIDMovementState NewMovm
 		FTimerHandle TimerHandle;
 		GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UWIDMovementComponent::RestoreMovmenetState, PendingTime, false);
 	}
+}
+
+float UWIDMovementComponent::GetMaxSpeed() const
+{
+#if	!UE_BUILD_SHIPPING
+	if (CheatSpeed > 0.0f)
+		return CheatSpeed;
+#endif // !UE_BUILD_SHIPPING
+
+	return Super::GetMaxSpeed();
 }

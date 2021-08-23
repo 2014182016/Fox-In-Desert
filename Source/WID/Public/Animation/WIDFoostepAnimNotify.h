@@ -7,16 +7,6 @@
 #include "Animation/AnimNotifies/AnimNotify.h"
 #include "WIDFoostepAnimNotify.generated.h"
 
-/** Enumeration of the position of each foot */
-UENUM()
-enum class EFootPosition : uint8
-{
-	ForelegLeft,
-	ForelegRight,
-	HindlegLeft,
-	HindlegRight,
-};
-
 /** Collection of information to use at footstep */
 USTRUCT()
 struct FFoostepInfo

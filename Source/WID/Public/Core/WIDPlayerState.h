@@ -61,7 +61,7 @@ protected:
 public:
 #if WITH_EDITORONLY_DATA
 	/** Stamina not reduced, for debugging */
-	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State", meta = (AllowPrivateAccess = true))
+	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State")
 		uint8 bInfiniteStamina : 1;
 #endif // WITH_EDITORONLY_DATA
 

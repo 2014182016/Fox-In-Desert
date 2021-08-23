@@ -19,4 +19,8 @@ public:
 	UFUNCTION(exec)
 		virtual void InfiniteStamina();
 
+	/** Change to desired speed, not the speed spcified in movement */
+	UFUNCTION(exec)
+		virtual void SetCheetSpeed(float DesiredSpeed);
+
 };

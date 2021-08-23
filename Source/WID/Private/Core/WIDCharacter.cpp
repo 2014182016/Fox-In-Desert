@@ -8,9 +8,12 @@
 #include "Animation/WIDAnimInstance.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/SphereComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "DrawDebugHelpers.h"
 
 void BindTimelineComponent(UObject* BindingObject, UCurveFloat* CurveData, UTimelineComponent* Component, const FName& BindFunctionName)
 {
@@ -54,6 +57,12 @@ AWIDCharacter::AWIDCharacter(const FObjectInitializer& ObjectInitializer)
 	{
 		FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
 		FollowCamera->bUsePawnControlRotation = false;
+	}
+
+	FrontBodyCollision = CreateDefaultSubobject<USphereComponent>(TEXT("FrontBodyCollision"));
+	if (FrontBodyCollision)
+	{
+		FrontBodyCollision->SetupAttachment(GetMesh(), USpringArmComponent::SocketName);
 	}
 }
 
@@ -112,6 +121,21 @@ void AWIDCharacter::Tick(float DeltaSeconds)
 
 	// X is left look value, Y is right look value
 	CurrentLookDegree = (-LookAmount.X + LookAmount.Y) * 180.0f;
+	
+	UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(GetCharacterMovement());
+	if (WIDMovement->IsWalking() && WIDMovement->MovementMode == MOVE_Walking)
+	{
+		if (bTiltBody)
+		{
+			CheckTiltBody(DeltaSeconds);
+		}
+
+		// Use foot ik only when character standing still
+		if (bUseFootIK && GetVelocity().IsNearlyZero())
+		{
+			CheckFootPlacement(DeltaSeconds);
+		}
+	}
 }
 
 void AWIDCharacter::Run()
@@ -341,4 +365,118 @@ void AWIDCharacter::WakeUp()
 void AWIDCharacter::EnableJump()
 {
 	bCanJump = true;
+}
+
+FVector AWIDCharacter::CheckAcceptableNormal(const FVector& InNormal) const
+{
+	// If the angle between the Z-axis and normal is less than a certain value, apply character ratotion
+	const float DegreeFromNormal = FMath::RadiansToDegrees(acosf(FVector::DotProduct(FVector::ZAxisVector, InNormal)));
+	if (DegreeFromNormal < CharacterRotationMaxDegree)
+	{
+		return InNormal;
+	}
+	return FVector::ZeroVector;
+}
+
+void AWIDCharacter::CheckTiltBody(float DeltaTime)
+{
+	if (GetMesh())
+	{
+		FVector HitNormal[2];
+
+		{
+			FHitResult HitResult(ForceInit);
+
+			FVector StartLoc = GetActorLocation();
+			FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckWalkingDistance);
+
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+			{
+				HitNormal[0] = CheckAcceptableNormal(HitResult.ImpactNormal);
+			}
+		}
+
+		{
+			FHitResult HitResult(ForceInit);
+
+			FVector StartLoc = FrontBodyCollision->GetComponentLocation();
+			FVector EndLoc = StartLoc + (FVector::DownVector * WID::CheckWalkingDistance);
+
+			if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+			{
+				HitNormal[1] = CheckAcceptableNormal(HitResult.ImpactNormal);
+			}
+		}
+
+		const FVector AverageNormal = CheckAcceptableNormal((HitNormal[0] + HitNormal[1]) * 0.5f);
+		if (!AverageNormal.IsZero())
+		{
+			FRotator OldRotation = GetMesh()->GetRelativeRotation();
+
+			// Find the rotation angle of normal
+			const float NewYaw = OldRotation.Yaw;
+			const float NewPitch = UKismetMathLibrary::MakeRotFromYZ(GetMesh()->GetRightVector(), AverageNormal).Pitch;
+			const float NewRoll = UKismetMathLibrary::MakeRotFromXZ(GetMesh()->GetForwardVector(), AverageNormal).Roll;
+			FRotator NewRotation = FRotator(NewPitch, NewYaw, NewRoll);
+
+			// Apply the new rotation interpolated
+			NewRotation = UKismetMathLibrary::RInterpTo(OldRotation, NewRotation, DeltaTime, StandingRotationInterpSpeed);
+			GetMesh()->SetRelativeRotation(NewRotation);
+		}
+	}
+}
+
+void AWIDCharacter::CheckFootPlacement(float DeltaTime)
+{
+	if (GetMesh())
+	{
+		FVector2D HitLocationZ = FVector2D(0.0f, 0.0f);
+
+		// Inspect the floor on each foot
+		for (EFootPosition FootPosition : TEnumRange<EFootPosition>())
+		{
+			const int32 CurrentIndex = static_cast<int32>(FootPosition);
+			const FName FootBoneName = WID::GetFootBoneName(FootPosition);
+			if (FootBoneName != FName("Root"))
+			{
+				const FVector BoneLocation = GetMesh()->GetBoneLocation(FootBoneName);
+
+				FHitResult HitResult(ForceInit);
+				FVector StartLoc = BoneLocation;
+				StartLoc.Z = GetActorLocation().Z;
+
+				const float CheckFootDistance = GetCapsuleComponent()->GetScaledCapsuleHalfHeight() + WID::CheckFootIKDistance;
+				FVector EndLoc = StartLoc + (FVector::DownVector * CheckFootDistance);
+
+				if (GetWorld()->LineTraceSingleByChannel(HitResult, StartLoc, EndLoc, ECollisionChannel::ECC_Visibility))
+				{
+					// Cache offset z values where feet is located
+					const float DiffFootLocationZ = GetActorLocation().Z - HitResult.Location.Z;
+					FootIKLocations[CurrentIndex].X = UKismetMathLibrary::FInterpTo(FootIKLocations[CurrentIndex].X, DiffFootLocationZ, DeltaTime, IKPositionIterpSpeed);
+
+					// Cache without comparison if the value is set to zero
+					if (HitLocationZ.IsZero())
+					{
+						HitLocationZ.X = HitResult.Location.Z;
+						HitLocationZ.Y = HitResult.Location.Z;
+					}
+					// Cache the min max value of the z value to calculate the hip offset
+					else
+					{
+						HitLocationZ.X = FMath::Min<float>(HitLocationZ.X, HitResult.Location.Z);
+						HitLocationZ.Y = FMath::Max<float>(HitLocationZ.Y, HitResult.Location.Z);
+					}
+					continue;
+;				}
+			}
+
+			// If the data di not fit or collide, set to zero
+			FootIKLocations[CurrentIndex] = FVector::ZeroVector;
+		}
+
+		// Calculate the location for positioning the hip as the average of the difference between z values
+		const float DiffHipLocationZ = FMath::Min<float>(FMath::Abs<float>(HitLocationZ.X - HitLocationZ.Y), WID::MinHipIKOffsetZ);
+		const float NewHipOffsetZ = DiffHipLocationZ * -0.5f;
+		HipIKOffset.Z = UKismetMathLibrary::FInterpTo(HipIKOffset.Z, NewHipOffsetZ, DeltaTime, IKPositionIterpSpeed);
+	}
 }

@@ -103,11 +103,11 @@ float AWIDPlayerState::GetHealthPercent() const
 
 void AWIDPlayerState::AddStamina(const float Value)
 {
-#if	WITH_EDITOR
-	CurrentStamina = bInfiniteStamina ? 100.0f : FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
-#else // WITH_EDITOR
+#if	UE_BUILD_SHIPPING
 	CurrentStamina = FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
-#endif //  WITH_EDITOR
+#else // UE_BUILD_SHIPPING
+	CurrentStamina = bInfiniteStamina ? 100.0f : FMath::Clamp<float>(CurrentStamina + Value, 0.0f, MaxStamina);
+#endif // UE_BUILD_SHIPPING
 
 	if (CurrentStamina <= 0.0f)
 	{

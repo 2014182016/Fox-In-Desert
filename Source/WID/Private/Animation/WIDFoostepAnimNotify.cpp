@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Animation/WIDFoostepAnimNotify.h"
 #include "Core/WIDCharacter.h"
 #include "PhysicalMaterials/PhysicalMaterial.h"
@@ -14,27 +13,8 @@ FVector UWIDFoostepAnimNotify::GetFootLocation(const USkeletalMeshComponent* con
 	if (!MeshComp)
 		return FVector::ZeroVector;
 
-	FName BoneName;
-	switch (FootPosition)
-	{
-	case EFootPosition::ForelegLeft:
-		BoneName = FName("L-Hand");
-		break;
-	case EFootPosition::ForelegRight:
-		BoneName = FName("R-Hand");
-		break;
-	case EFootPosition::HindlegLeft:
-		BoneName = FName("L-Foot");
-		break;
-	case EFootPosition::HindlegRight:
-		BoneName = FName("R-Foot");
-		break;
-	default:
-		BoneName = FName("Root");
-		break;
-	}
-
-	return MeshComp->GetBoneLocation(BoneName);
+	FName FootBoneName = WID::GetFootBoneName(FootPosition);
+	return MeshComp->GetBoneLocation(FootBoneName);
 }
 
 void FFoostepInfo::PlayAllEffect(const UObject* WorldContextObject, const AActor* const Target, const FVector& Location) const

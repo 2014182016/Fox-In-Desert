@@ -15,6 +15,85 @@
 	inline constexpr bool operator& (Enum& Lhs, int32 Rhs) { return (static_cast<int32>(Lhs) & Rhs); } \
 	inline constexpr bool operator^ (Enum& Lhs, int32 Rhs) { return (static_cast<int32>(Lhs) ^ Rhs); }
 
+/** Mark the number of feet as a magic number */
+#define LEG_NUM 4
+
+/** The state of character movement */
+UENUM()
+enum class EWIDMovementState : uint8
+{
+	None,
+	Idle,
+	Walking,
+	Running,
+	SlowWalking,
+	Jumping,
+	Sleeping,
+};
+
+/** Type to distinguish widgets attached to the hud */
+UENUM()
+enum class EHudType : uint8
+{
+	MainMenu,
+	GameMenu,
+	Loading,
+	PlayerState,
+	Option,
+	All,
+};
+
+/** Type to distinguish events when calling event to the hud */
+UENUM(BlueprintType)
+enum class EHudEvent : uint8
+{
+	Update,
+	Visibility,
+	ToggleVisibility,
+	UpdateStamina,
+	UpdateHealth,
+	WidgetSwitcher,
+	UpdateGameSettings,
+	UpdateFade,
+	UpdateStaminaState,
+};
+
+/** Each camera mode to control */
+UENUM()
+enum class ECameraMode : uint8
+{
+	ControllerIndependent,
+	ControllerDependent,
+};
+
+/** Enumeration defining the input mode of controller */
+UENUM()
+enum class EInputMode : uint8
+{
+	GameOnly,
+	UIOnly,
+	GameAndUI,
+};
+
+/** Enumeration the current state of statmina */
+UENUM()
+enum class EStaminaState : uint8
+{
+	Normal,
+	Exhaustion,
+};
+
+/** Enumeration of the position of each foot */
+UENUM()
+enum class EFootPosition : uint8
+{
+	ForelegLeft,
+	ForelegRight,
+	HindlegLeft,
+	HindlegRight,
+};
+ENUM_RANGE_BY_COUNT(EFootPosition, LEG_NUM);
+
 namespace WID
 {
 	/** Data type to use for the Hud Event Information */
@@ -30,9 +109,13 @@ namespace WID
 	/** Distance to inspect the floor for falling animation */
 	static constexpr float CheckFallingDistance = 10000.0f;
 	/** Distance to inspect the floor for character rotation */
-	static constexpr float CheckWalkingDistance = 50.0f;
+	static constexpr float CheckWalkingDistance = 100.0f;
 	/** Distance to raise a certain value when foostep because foot digs into the ground */
 	static constexpr float CheckFootstepUpDistance = 50.0f;
+	/** Distance to find foot ik position */
+	static constexpr float CheckFootIKDistance = 5.0f;
+	/** Minimum value of offset where hip will be located using ik */
+	static constexpr float MinHipIKOffsetZ = 20.0f;
 
 	/** I want to order EWindowMode decalred by Epic throught this function */
 	static inline EWindowMode::Type ConvertIntToWindowMode(int32 InIndex)
@@ -99,69 +182,29 @@ namespace WID
 			return English;
 		}
 	}
+
+	static FName GetFootBoneName(EFootPosition FootPosition)
+	{
+		FName BoneName;
+		switch (FootPosition)
+		{
+		case EFootPosition::ForelegLeft:
+			BoneName = FName("L-Hand");
+			break;
+		case EFootPosition::ForelegRight:
+			BoneName = FName("R-Hand");
+			break;
+		case EFootPosition::HindlegLeft:
+			BoneName = FName("L-Foot");
+			break;
+		case EFootPosition::HindlegRight:
+			BoneName = FName("R-Foot");
+			break;
+		default:
+			BoneName = FName("Root");
+			break;
+		}
+
+		return BoneName;
+	}
 }
-
-/** The state of character movement */
-UENUM()
-enum class EWIDMovementState : uint8
-{
-	None,
-	Idle,
-	Walking,
-	Running,
-	SlowWalking,
-	Jumping,
-	Sleeping,
-};
-
-/** Type to distinguish widgets attached to the hud */
-UENUM()
-enum class EHudType : uint8
-{
-	MainMenu,
-	GameMenu,
-	Loading,
-	PlayerState,
-	Option,
-	All,
-};
-
-/** Type to distinguish events when calling event to the hud */
-UENUM(BlueprintType)
-enum class EHudEvent : uint8
-{
-	Update,
-	Visibility,
-	ToggleVisibility,
-	UpdateStamina,
-	UpdateHealth,
-	WidgetSwitcher,
-	UpdateGameSettings,
-	UpdateFade,
-	UpdateStaminaState,
-};
-
-/** Each camera mode to control */
-UENUM()
-enum class ECameraMode : uint8
-{
-	ControllerIndependent,
-	ControllerDependent,
-};
-
-/** Enumeration defining the input mode of controller */
-UENUM()
-enum class EInputMode : uint8
-{
-	GameOnly,
-	UIOnly,
-	GameAndUI,
-};
-
-/** Enumeration the current state of statmina */
-UENUM()
-enum class EStaminaState : uint8
-{
-	Normal,
-	Exhaustion,
-};

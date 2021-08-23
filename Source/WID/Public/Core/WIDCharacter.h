@@ -77,6 +77,17 @@ protected:
 	// }} AActor Interface
 
 protected:
+	/** Tilt according to the normal directiuon of the floor */
+	virtual void CheckTiltBody(float DeltaTime);
+
+	/** Find where the foot belong */
+	virtual void CheckFootPlacement(float DeltaTime);
+
+private:
+	/** Check and return only acceptable normal */
+	FVector CheckAcceptableNormal(const FVector& InNormal) const;
+
+protected:
 	// {{ Timeline Binding Function
 	UFUNCTION()
 		void LeftLookHandleProgress(float InterpValue);
@@ -86,11 +97,26 @@ protected:
 	// }} Timeline Binding Function
 
 public:
+	/** Tilt according to the normal direction of the floor */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+		uint8 bTiltBody : 1;
+
+	/** Whether to enable foot ik */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation")
+		uint8 bUseFootIK : 1;
+
+public:
 	/** Curve that indicates how far the character looks to the left whene pressed left */
 	float CurrentLookDegree;
 
 	/** The last time moved */
 	float LastMoveStamp;
+
+	/** IK location for foot position */
+	FVector FootIKLocations[LEG_NUM];
+
+	/** IK location for hip position */
+	FVector HipIKOffset;
 
 protected:
 	/** Binding the camera to the character for fixed distance */
@@ -101,6 +127,11 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
 		class UCameraComponent* FollowCamera;
 
+	/** Apply collision to the front of the body to prevent the mesh from penetrating */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera", meta = (AllowPrivateAccess = "true"))
+		class USphereComponent* FrontBodyCollision;
+
+protected:
 	/** If the value is set, the jump is executed after a certain period of time. If not, it's done immediately */
 	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 		FOptionalFloat ReadyToJumpTime = 0.2f;
@@ -116,6 +147,18 @@ protected:
 	/** Timeline play rate in context when opposition input pressed. X is forward play rate, Y is reverse play rate */
 	UPROPERTY(EditAnywhere, Category = "Timeline", meta = (AllowPrivateAccess = "true"))
 		FVector2D OppositionLookPlayRate = FVector2D(1.0f);
+
+	/** Adjust the speed at which the character rotates according to floor normal */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+		float StandingRotationInterpSpeed = 4.0f;
+
+	/** The angle with the floor normal must be greater than this value to apply character rotation */
+	UPROPERTY(EditAnywhere, Category = "Movement", meta = (AllowPrivateAccess = "true"))
+		float CharacterRotationMaxDegree = 30.0f;
+
+	/** Speed to interpolate to the point of position using IK */
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = "true"))
+		float IKPositionIterpSpeed = 10.0f;
 
 protected:
 	/** True on death */

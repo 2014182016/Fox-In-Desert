@@ -45,6 +45,15 @@ void UWIDAnimInstance::NativeInitializeAnimation()
 	if (IsValid(WIDCharacter))
 	{
 		JumpAnimStartPosition = WIDCharacter->CanReadyToJump() ? 0.0f : JumpAnimStartPosition;
+		bUseFootIK = WIDCharacter->bUseFootIK;
+	}
+
+	FootIKLocationList.Reserve(LEG_NUM);
+	FootIKLocationList.SetNum(LEG_NUM);
+
+	for (int i = 0; i < LEG_NUM; ++i)
+	{
+		FootIKLocationList[i] = FVector::ZeroVector;
 	}
 }
 
@@ -66,6 +75,16 @@ void UWIDAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		CurrentSpeed = WIDCharacter->GetVelocity().Size();
 		CurrentSpeed2D = WIDCharacter->GetVelocity().Size2D();
 		CurrentLookDegree = WIDCharacter->CurrentLookDegree * LookAnimRate;
+
+		if (bUseFootIK)
+		{
+			for (int32 i = 0; i < LEG_NUM; ++i)
+			{
+				FootIKLocationList[i] = WIDCharacter->FootIKLocations[i];
+			}
+
+			HipIKOffset = WIDCharacter->HipIKOffset;
+		}
 
 		UWIDMovementComponent* WIDMovement = Cast<UWIDMovementComponent>(WIDCharacter->GetCharacterMovement());
 		if (WIDMovement)

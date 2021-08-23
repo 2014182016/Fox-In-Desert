@@ -162,6 +162,18 @@ protected:
 	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadWrite, Category = "Animation", meta = (AllowPrivateAccess = true))
 		int32 LazyAnimIndex;
 
+	/** Whether to enable foot ik */
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
+		uint8 bUseFootIK : 1;
+
+	/** IK location for foot position */
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
+		TArray<FVector> FootIKLocationList;
+
+	/** IK location for hip position */
+	UPROPERTY(Transient, VisibleInstanceOnly, BlueprintReadOnly, Category = "Animation", meta = (AllowPrivateAccess = true))
+		FVector HipIKOffset;
+
 private:
 	/** Remaining Time to specify next lazy animation */
 	float NextLazyAnimTime;

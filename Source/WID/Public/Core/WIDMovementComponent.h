@@ -50,9 +50,9 @@ public:
 	// }} UActorComponent Interface
 
 	// {{ UMovementComponent Interface
-	virtual void PhysWalking(float deltaTime, int32 Iterations) override;
 	virtual void PhysFalling(float deltaTime, int32 Iterations) override;
 	virtual void SetPostLandedPhysics(const FHitResult& Hit) override;
+	virtual float GetMaxSpeed() const override;
 	// }} UMovementComponent Interface
 
 public:
@@ -98,11 +98,15 @@ protected:
 	virtual bool CanRestoreMovementState(const EWIDMovementState CurrentMovmenetState, const EWIDMovementState LastMovmenetState) const;
 
 public:
+#if WITH_EDITORONLY_DATA
+	/** Apply the desired speed when greadter than zero, for debugging */
+	UPROPERTY(Transient, EditInstanceOnly, BlueprintReadOnly, Category = "State")
+		float CheatSpeed;
+#endif // WITH_EDITORONLY_DATA
+
+public:
 	/** Distance from ground when jumping */
 	float DistanceToFloorWhileFalling;
-
-	/** Tilt according to the normal direction of the floor */
-	uint8 bTiltBody : 1;
 
 protected:
 	/** Current movement State applied to character movement */
@@ -112,14 +116,6 @@ protected:
 	/** Movement information container in accordance with movement state */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement", meta = (AllowPrivateAccess = "true"))
 		TMap<EWIDMovementState, FMovemenetStateInfo> MovementStateInfoMap;
-
-	/** Adjust the speed at which the character rotates according to floor normal */
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-		float StandingRotationInterpSpeed = 4.0f;
-
-	/** The angle with the floor normal must be greater than this value to apply character rotation */
-	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"))
-		float CharacterRotationMaxDegree = 30.0f;
 
 private:
 	/** Movement state to restore later */

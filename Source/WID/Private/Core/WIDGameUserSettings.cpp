@@ -84,11 +84,7 @@ void UWIDGameUserSettings::ApplyGameSettings(APlayerController* LocalPlayerContr
 	AWIDCharacter* WIDCharacter = WIDPlayerController->GetPawn<AWIDCharacter>();
 	if (IsValid(WIDCharacter))
 	{
-		UWIDMovementComponent* WIDMovementComponent = Cast<UWIDMovementComponent>(WIDCharacter->GetCharacterMovement());
-		if (WIDMovementComponent)
-		{
-			WIDMovementComponent->bTiltBody = bTiltBody;
-		}
+		WIDCharacter->bTiltBody = bTiltBody;
 	}
 
 	SetGamma(LocalPlayerController, Gamma);
@@ -123,6 +119,11 @@ void UWIDGameUserSettings::RestoreForEditor(APlayerController* LocalPlayerContro
 
 	SetGamma(LocalPlayerController, 2.2f);
 	SetOverallScalabilityLevel(1);
+	SetAntiAliasingQuality(1);
+	SetPostProcessingQuality(1);
+	SetShadowQuality(1);
+	SetTextureQuality(1);
+	SetVisualEffectQuality(1);
 }
 #endif // WITH_EDITOR
 
